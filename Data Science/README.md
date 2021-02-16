@@ -2,7 +2,7 @@
 
 ○ Decision Tree 코드를 다음과 같이 수정 및 작성 
 
-- target 변수를 lwvel로 수정하고, did_well은 입력변수로 사용 
+- target 변수를 level로 수정하고, did_well은 입력변수로 사용 
 - 필요에 따라 Candidate class의 정의 수정 
 - lang = 'Java', tweets = True, phd = False, did_well = True인 경우의 분류결과 출력 
 - lang = 'Python', tweets = False, phd = False, did_well = False인 경우의 분류결과 출력 
