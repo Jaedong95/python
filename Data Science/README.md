@@ -1,4 +1,4 @@
-<assignments> 
+'assignments'
 
 ○ Decision Tree 코드를 다음과 같이 수정 및 작성 
 
