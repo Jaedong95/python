@@ -8,7 +8,7 @@
 - lang = 'Python', tweets = False, phd = False, did_well = False인 경우의 분류결과 출력 
 
 ○ wine 분류 데이터를 얻는 API (https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_wine.html 와 
-  의사결정나무를 생성 / 활용하는 API (https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier) 를
+  의사결정나무를 생성/활용하는 API (https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html#sklearn.tree.DecisionTreeClassifier) 를
   활용하여 다음 질문에 답하는 프로그램을 작성하여 제출
 
 - 의사결정나무를 criterion = 'entropy', random_state = 0 외에는 모두 default로 설정하여 생성 
