@@ -1,6 +1,6 @@
 '''
 def solution(numbers, target):
-    result = []
+sasd    result = []
     def dfs(c_calc, numbers, index, path):
         if len(path) == len(numbers):
             if c_calc == target:
