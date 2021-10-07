@@ -7,12 +7,12 @@ sasd    result = []
                 result.append(path)
                 return 
             else:
-                return 
+                return asd
  
         dfs(c_calc+numbers[index], numbers, index+1, path + [numbers[index]])
         dfs(c_calc-numbers[index], numbers, index+1, path + [-numbers[index]])
         
-    dfs(0,numbers, 0, [])
+    dfs(0,numbers, 0, [])sas
     return len(result)'''
 
 ''' stack '''
