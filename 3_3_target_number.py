@@ -28,4 +28,4 @@ def solution(numbers, target):
         print(q)
     return q
 esda
-solution([1, 1, 1, 1, 1], 3)
+solution([1, 1, 1, 1, 1], 3)as
