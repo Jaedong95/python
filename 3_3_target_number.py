@@ -27,5 +27,5 @@ def solution(numbers, target):
         q = s.copy()
         print(q)
     return q
-
+esda
 solution([1, 1, 1, 1, 1], 3)
