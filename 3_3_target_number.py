@@ -24,7 +24,7 @@ def solution(numbers, target):
             x = q.pop()
             s.append(x + n)
             s.append(x + (-1) * n)
-        q = s.copy()
+        q = s.copy(
         print(q)
     return qasda
 esda
