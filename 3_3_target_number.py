@@ -26,6 +26,6 @@ def solution(numbers, target):
             s.append(x + (-1) * n)
         q = s.copy()
         print(q)
-    return q
+    return qasda
 esda
 solution([1, 1, 1, 1, 1], 3)as
