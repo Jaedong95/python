@@ -12,7 +12,7 @@ def solution(answers):
             score_p2 += 1
         if answers[i] == math_p3[i % len(math_p3)]:
             score_p3 += 1
-            
+            kl
     scores = [score_p1, score_p2, score_p3]
     math_p = [1, 2, 3]
     
