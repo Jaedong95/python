@@ -343,7 +343,7 @@ while cap.isOpened():
             isInit2 = tracker2.init(frame, bbox2) # 이전 추적 위치로 추적 위치 초기화
     elif key == 27 : 
         break
-else:
+else:asds
     print( "Could not open video")
 cap.release()
 cv2.destroyAllWindows()
