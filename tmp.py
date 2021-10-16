@@ -1,21 +1,16 @@
-#세가지 기능을 합친 코드
-#차량 신호등이 초록색일 때 횡단보도 보행자 검출
-#현재 코드는 1번 기준
-
 import cv2
 import numpy as np
 import imutils  # resize1
 import cv2
 import numpy as np
-
 #신호등
 def set_blob_param(r_type: str):
     # BLOB 필터 생성하기 
     params = cv2.SimpleBlobDetector_Params()
     
     params.minThreshold = 10
-    params.maxThreshold = 240
-    params.thresholdStep = 3
+    params.maxThreshold = 255
+    params.thresholdStep = 10
     params.filterByArea = False
     params.filterByColor = False
     params.filterByCircularity = True
@@ -38,16 +33,20 @@ def set_blob_param(r_type: str):
         params.maxCircularity = 0.8
     
     return params 
-
 # 신호등으로 추정되는 영역 검출 
 def subtract_shape(img):
     global k, h, w   # 모폴로지 연산 필터 
     
     img_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    roi_s = img_gray[int((0.2)*w):int((3) * w), int((0.2)*h): int((3)*h)]
+    # roi_s = img_gray[int((1/5)*w):int((4/5) * w), int((1/5)*h): int((4/5)*h)]
+    roi_s = img_gray[int((1/5)*w):int((3/5) * w), int((1/5)*h): int((3/5)*h)]
+    blur = cv2.GaussianBlur(roi_s, (3, 3), 0)
 
-    ret, th = cv2.threshold(roi_s, 55, 255, cv2.THRESH_BINARY)
-    dst_s = cv2.morphologyEx(th, cv2.MORPH_OPEN, k)   # 모폴로지 열기 연산 
+    # ret, th = cv2.threshold(roi_s, 55, 255, cv2.THRESH_BINARY)
+    _, t_otsu = cv2.threshold(blur, -1, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+    cv2.imshow('th',t_otsu)
+    dst_s = cv2.morphologyEx(t_otsu, cv2.MORPH_OPEN, k)   # 모폴로지 열기 연산 
     #필터 확인
     edge_s = cv2.Laplacian(dst_s, -2)
     detector = cv2.SimpleBlobDetector_create(param_s)
@@ -60,53 +59,56 @@ def subtract_shape(img):
     for s_keypoint in s_keypoints:
         roi_cx, roi_cy = map(int, s_keypoint.pt)
         cx, cy = int(roi_cx + h * (1/5)), int(roi_cy + w * (1/5))
+#        cx, cy = int(roi_cx + h * (1/13)), int(roi_cy + w * (1/13))
+        
         cv2.putText(img_gray, '!', (cx, cy), cv2.FONT_HERSHEY_TRIPLEX, 1,(255, 255, 255))
         size = int(s_keypoint.size)
         cx2, cy2 = cx + size // 2, cy + size // 2    
         shape_list.append([cx, cx2, cy, cy2])
-    
+    cv2.imshow('img_gray',img_gray)
     return shape_list  
-
 ###########
 # 신호등 색상에 해당되는 영역 검출 
 def subtract_color(img, color):
     global k, w, h   # 모폴로지 연산 필터 
     
     lower_green = np.array([50, 50, 80]); upper_green = np.array([90, 255, 255])
-    lower_red = np.array([-10, 50, 50]);  upper_red = np.array([10, 255, 255])
+    lower_red = np.array([-10, 30, 30]);  upper_red = np.array([10, 255, 255])
     lower_yellow = np.array([11, 50, 50]); upper_yellow = np.array([30, 255, 255])
     
-    img_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    roi_c = img_hsv[int((0.2)*w):int((3) * w), int((0.2)*h): int((3)*h)]
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    if color == 'red_yellow':
-        mask1 = cv2.inRange(roi_c, lower_red, upper_red)
-        mask2 = cv2.inRange(roi_c, lower_yellow, upper_yellow)
+    roi_c = img_hsv[int((1/5)*w):int((3/5) * w), int((1/5)*h): int((3/5)*h)]
+    #roi_c = img_hsv[int((1/13)*w):int((2/5) * w), int((1/13)*h): int((2/5)*h)]
         
-        mask = cv2.bitwise_or(mask1, mask2)   # 색상 부분 추출 
+    if color == 'red':
+        mask = cv2.inRange(roi_c, lower_red, upper_red)
     elif color == 'green':
         mask = cv2.inRange(roi_c, lower_green, upper_green)   
+    elif color == 'yellow':
+        mask = cv2.inRange(roi_c, lower_yellow, upper_yellow) 
         
     img_mask = cv2.bitwise_and(roi_c, roi_c, mask=mask)
     edge_c = cv2.Laplacian(img_mask, -1)
-    dst_c = cv2.morphologyEx(edge_c, cv2.MORPH_OPEN, k)   # 모폴로지 닫기 연산 
-
+    # dst_c = cv2.morphologyEx(edge_c, cv2.MORPH_OPEN, k) 적용 x (검출률 저하)
     detector = cv2.SimpleBlobDetector_create(param_c)
     c_keypoints = detector.detect(edge_c)
     img_draw_c = cv2.drawKeypoints(roi_c, c_keypoints, None, None, cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    
+    # cv2.imshow('img_draw_c', img_draw_c)
+
     global color_list 
     
     for c_keypoint in c_keypoints:
         roi_cx, roi_cy = map(int, c_keypoint.pt)
         cx, cy = int(roi_cx + h * (1/5)), int(roi_cy + w * (1/5))
+        #cx, cy = int(roi_cx + h * (2/5)), int(roi_cy + w * (2/5))
+        
         cv2.putText(img_hsv, '!', (cx, cy), cv2.FONT_HERSHEY_TRIPLEX, 1,(255, 255, 255))
         size = int(c_keypoint.size)
         cx2, cy2 = cx + size // 2, cy + size // 2 
         color_list.append([cx, cx2, cy, cy2])
     
-        cv2.imshow('img_hsv', img_hsv)    
-        
+    cv2.imshow('img_hsv', img_hsv)        
     return color_list
                 
 ##########################################################################
@@ -135,28 +137,21 @@ def spot_check(rect1, rect2):
     
     #검출된 겹치는 꼭지점 개수 초기화
     total_points=0
-
     #좌측상단 꼭지점 확인
     if min_check_x in xrange and min_check_y in yrange:
         total_points+=1
-
     #우측상단 꼭지점 확인
     if max_check_x in xrange and min_check_y in yrange:
         total_points+=1
-
     #좌측하단 꼭지점 확인
     if max_check_y in yrange and min_check_x in xrange:
         total_points+=1
-
     #우측하단 꼭지점 확인
     if max_check_x in xrange and max_check_y in yrange:
         total_points+=1
     
     return total_points
-
-
 ###############################################################################################################################
-
 ##겹치는 사각형 영역의 꼭지점 수 검출 함수
 def spot_check(rect1, rect2):
     #좀더 좌측 상단에 있는 시작점을 검출해 이것을 기준으로 함
@@ -182,25 +177,20 @@ def spot_check(rect1, rect2):
     
     #검출된 겹치는 꼭지점 개수 초기화
     total_points=0
-
     #좌측상단 꼭지점 확인
     if min_check_x in xrange and min_check_y in yrange:
         total_points+=1
-
     #우측상단 꼭지점 확인
     if max_check_x in xrange and min_check_y in yrange:
         total_points+=1
-
     #좌측하단 꼭지점 확인
     if max_check_y in yrange and min_check_x in xrange:
         total_points+=1
-
     #우측하단 꼭지점 확인
     if max_check_x in xrange and max_check_y in yrange:
         total_points+=1
     
     return total_points
-
 ###############################################################################################################################
 ##횡단보도와 사람객체 roi 추적 API
 #디폴트 에이다 부스트를 이용한 검출 
@@ -219,28 +209,28 @@ trackerIdx = 0  # 트랙커 생성자 함수 선택 인덱스
 tracker1 = None
 tracker2 = None
 isFirst = True
-
 video_src = 0 # 비디오 파일과 카메라 선택 
-video_src = "C:/Users/admin/Downloads/movies/cropped_traffic2.mp4"
+video_src = "./cropped_traffic2.mp4"
 cap = cv2.VideoCapture(video_src)
 fps = cap.get(cv2.CAP_PROP_FPS) # 프레임 수 구하기
 delay = int(1000/fps)
 win_name = 'Tracking APIs'
 ROIs=0
 crop_imgs= [] 
-
 param_c = set_blob_param('color')
 param_s = set_blob_param('shape')
 k = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))   # 모폴로지 연산 필터 
 shape_list = []
 color_list = [] 
 w = 800; h = 800      
+color_flag = 'green'
 
 while cap.isOpened():
-    global fps, delay,k    
+    global fps, delay, k    
     ret, frame = cap.read()
     
     frame = imutils.resize(frame, width = 800)  # resize1
+    #frame = cv2.resize(img, (800,800))
     
     if not ret:
         print('Cannot read video file')
@@ -259,7 +249,7 @@ while cap.isOpened():
                 
         if ok1 and ok2: # 추적 성공
             cv2.rectangle(img_draw, (int(x1), int(y1)), (int(x1 + w1), int(y1 + h1)), \
-                          (0,255,0), 2, 1) #img_draw
+                          (255,0, 0), 2, 1) #img_draw
             cv2.rectangle(img_draw, (int(x2), int(y2)), (int(x2 + w2), int(y2 + h2)), \
                           (0,0,255), 2, 1) #img_draw
             #1번째 조건부여   
@@ -268,15 +258,14 @@ while cap.isOpened():
                 cv2.putText(img_draw, "STOP!", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 2,(0,0,255),2,cv2.LINE_AA)  
                 shape_list = subtract_shape(img_draw)
                 #print('shape_list', shape_list) 
-                color_list = subtract_color(img_draw, 'green')
+                color_list = subtract_color(img_draw, color_flag)
                 #print('color_list', color_list)
                 tl_flag = False 
                 for a1, a2, b1, b2 in color_list:
                     for x1, x2, y1, y2 in shape_list:
                         if ((a1 >= x1 and a1 <= x2) and (b1 >= y1 and b1 <= y2)) and tl_flag == False:
-                            cv2.putText(img_draw, 'Car_Traffic Light Detected!', (100, 120), cv2.FONT_HERSHEY_TRIPLEX, 1,(255, 255, 255))
+                            cv2.putText(img_draw, f'{color_flag} Light Detected!', (100, 120), cv2.FONT_HERSHEY_TRIPLEX, 1,(255, 255, 255))
                             tl_flag = True 
-
             else:
                 cv2.putText(img_draw, "", (100,80), cv2.FONT_HERSHEY_SIMPLEX, 2,(0,0,255),2,cv2.LINE_AA)
                 
@@ -286,7 +275,6 @@ while cap.isOpened():
     trackerName = tracker1.__class__.__name__
     cv2.putText(img_draw, str(trackerIdx) + ":"+trackerName , (100,20), \
                  cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0,0,255),2,cv2.LINE_AA)
-
     cv2.imshow(win_name, img_draw)
     key = cv2.waitKey(delay) & 0xff
     # 스페이스 바 또는 비디오 파일 최초 실행 
@@ -309,8 +297,8 @@ while cap.isOpened():
                 img = imutils.resize(img, width = 800)  # resize1#counter to save image with different name
                 # default 디텍터로 보행자 검출
                 found, _ = hogdef.detectMultiScale(img)
-                for (x, y, w, h) in found:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 255), 2)
+                for (x0, y0, w0, h0) in found:
+                    cv2.rectangle(img, (x0, y0), (x0 + w0, y0 + h0), (0, 255, 255), 2)
                 cv2.putText(img, 'Detector:%s'%('Default'), (10, 50), cv2.FONT_HERSHEY_DUPLEX,1, (0, 255, 0),1)
                 cv2.imshow(win_name, img)
                 # daimler 디텍터로 보행자 검출
@@ -331,7 +319,7 @@ while cap.isOpened():
                 break
         if len(crop_imgs) != 0:         # 위치 설정 값 있는 경우
             tracker1 = trackers[trackerIdx]()    #트랙커 객체 생성 
-            isssInit1 = tracker1.init(frame, crop_imgs[0]) #roi1
+            isInit1 = tracker1.init(frame, crop_imgs[0]) #roi1
             tracker2 = trackers[trackerIdx]()    #트랙커 객체 생성
             isInit2 = tracker2.init(frame, crop_imgs[1]) #roi2
     elif key in range(48, 56): # 0~7 숫자 입력  #근데 안될 수 있는게 있을 수도 있음
@@ -343,7 +331,7 @@ while cap.isOpened():
             isInit2 = tracker2.init(frame, bbox2) # 이전 추적 위치로 추적 위치 초기화
     elif key == 27 : 
         break
-else:asds
+else:
     print( "Could not open video")
 cap.release()
 cv2.destroyAllWindows()
