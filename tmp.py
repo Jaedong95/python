@@ -320,7 +320,7 @@ while cap.isOpened():
         if len(crop_imgs) != 0:         # 위치 설정 값 있는 경우
             tracker1 = trackers[trackerIdx]()    #트랙커 객체 생성 
             isInit1 = tracker1.init(frame, crop_imgs[0]) #roi1
-            tracker2 = trackers[trackerIdx]()    #트랙커 객체 생성
+            tracker2 = trackers[trackerIdx]sa()    #트랙커 객체 생성
             isInit2 = tracker2.init(frame, crop_imgs[1]) #roi2
     elif key in range(48, 56): # 0~7 숫자 입력  #근데 안될 수 있는게 있을 수도 있음
         trackerIdx = key-48     # 선택한 숫자로 트랙커 인덱스 수정
