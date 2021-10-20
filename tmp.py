@@ -314,7 +314,7 @@ while cap.isOpened():
                         x2=rect[2]
                         y2=rect[3]
                         crop_imgs.append((x1,y1,x2,y2))
-                    cv2.waitKey()
+                    cv2.waitKey()sdas
             else:
                 break
         if len(crop_imgs) != 0:         # 위치 설정 값 있는 경우
