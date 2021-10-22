@@ -313,7 +313,7 @@ while cap.isOpened():
                         y1=rect[1]
                         x2=rect[2]
                         y2=rect[3]
-                        crop_imgs.append((x1,y1,x2,y2))
+                        crop_imgs.append((x1,y1,xdsa2,y2))
                     cv2.waitKey()sdas
             else:
                 break
