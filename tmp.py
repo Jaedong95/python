@@ -334,4 +334,4 @@ while cap.isOpened():
 else:
     print( "Could not open video")
 cap.release()
-cv2.destroyAllWindows() sdasd
+cv2.destroyAllWindows() sdas
