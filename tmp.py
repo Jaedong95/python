@@ -332,6 +332,6 @@ while cap.isOpened():
     elif key == 27 : 
         break
 else:
-    print( "Could not open video")
+    print( "Could not open video")sdad
 cap.release()
 cv2.destroyAllWindows() sda
