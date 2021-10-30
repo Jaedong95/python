@@ -1,3 +1,7 @@
-num = 5 
-for i in range(1, 6): 
-    print(" " * ((num-i) // 2) + "*" * i + " " *((num-i) // 2))
+sum = 0 
+for i in range(1, 101):
+    sum += i 
+    if sum >= 1000:
+        break
+
+print(i,sum)
