@@ -330,7 +330,7 @@ while cap.isOpened():
             tracker2 = trackers[trackerIdx]() # 선택한 숫자의 트랙커 객체 생성 
             isInit2 = tracker2.init(frame, bbox2) # 이전 추적 위치로 추적 위치 초기화
     elif key == 27 : 
-        breakasd
+        breakas
 else:
     print( "Could not open video")sda
 cap.release()
