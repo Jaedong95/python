@@ -1,7 +1,2 @@
-sum = 0 
-for i in range(1, 101):
-    sum += i 
-    if sum >= 1000:
-        break
-
-print(i,sum)
+num = int(input("숫자를 입력하세요: "))
+print("짝수" if num % 2 == 0 else "홀수")
