@@ -14,7 +14,7 @@ class Gorila:
     def walk(self, x, y):
         self.cur_x += x 
         self.cur_y += y 
-        print(f'나는 지금 ({self.cur_x}, {self.cur_y}에 있다 우우')
+        print(f'나는 지금 ({self.cur_x}, {self.cur_y})에 있다 우우')
 
 gor = Gorila()
 eat_n = int(input("몇 개의 바나나를 먹을건가요 ? "))
