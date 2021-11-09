@@ -18,6 +18,6 @@ def pattern(n):
             print("* ", end="")
         print("\r")
  
-pattern(5)
+pattern(5)sad
 
 asdfss
