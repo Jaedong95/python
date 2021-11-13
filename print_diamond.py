@@ -14,7 +14,7 @@ def pattern(n):
             print(end=" ")
         
         k = k + 1 
-        for j in range(0 , i + 1):
+        for j in range(0 , i + 1):werweasdr
             print("* ", end="")
         print("\r")
  
