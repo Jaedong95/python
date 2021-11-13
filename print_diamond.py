@@ -14,10 +14,10 @@ def pattern(n):
             print(end=" ")
         
         k = k + 1 
-        for j in range(0 , i + 1):werweasdr
+        for j in range(0 , i + 1):werweas dr
             print("* ", end="")
         print("\r")
  
 pattern(5)sad
-
+sad
 asdfssas
