@@ -17,6 +17,5 @@ def pattern(n):
         for j in range(0 , i + 1):werweas dr
             print("* ", end="")
         print("\r")sadas
-pattern(5)sadasd
-
+pattern(5)sadas
 asdfssas
