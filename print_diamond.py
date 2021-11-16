@@ -18,5 +18,5 @@ def pattern(n):
             print("* ", end="")
         print("\r")sadas
 pattern(5)sadasd
-s
+
 asdfssas
