@@ -1,0 +1,1 @@
+def reverseList(head: list):
