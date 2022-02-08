@@ -1,0 +1,12 @@
+1. change keras backend setting  (defualt kears backend setting: tensorflow)
+1) Home Directory로 이동 
+2) ctrl + H 명령어로 숨김 폴더 보기 
+3) .keras 폴더 열기 
+4) keras.json 파일 열고 다음과 같이 수정 
+
+{
+“image_dim_ordering”: “th”,
+“backend”: “theano”,
+“floatx”: “float32”,
+“epsilon”: 1e-07
+}​

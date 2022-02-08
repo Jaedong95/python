@@ -1,0 +1,5 @@
+1. OpenCV 설치 시 Import Error: libGL.so.1: cannot open shared object file: no such file or directory 
+$ apt-get update 
+$ apt-get -y install libgl1-mesa-glx
+
+
