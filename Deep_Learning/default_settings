@@ -1,0 +1,33 @@
+0. build-essential 패키지 설치 
+- C++ 프로그램을 컴파일하는 데 필요한 것들 설치
+
+$ sudo apt-get update
+$ sudo apt-get install build-essential
+
+1. CUDA 툴킷 설치 
+- tensorflow v1.4 -> CUDA 툴킷 8.0, cuDNN v6.0 설치.. 
+
+* CUDA toolkit: https://developer.nvidia.com/cuda-zone에서 확인 가능 
+
+$ wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_375.26_linux-run
+$ sudo sh cuda_8.0.61_375.26_linux-run   
+
+이후 사용권 계약에 동의하고, 기본 사항 지정 
+
+$ wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run   
+$ sudo sh cuda_8.0.61.2_linux-run  
+
+이후 사용권 계약에 동의하고, 기본 사항 지정 
+
+2. bash_profile에 해당 환경 변수 추가 
+$ export LD_LIBRARY_PATH='$LD_LIBRARY_PATH:/usr/local/cuda/lib64'
+$ export CUDA_HOME='/usr/local/cuda'
+
+* nvidia-smi   # test 
+
+3. cuDNN 설치   
+- cuDNN 홈페이지에 개발자로 등록 필요
+
+$ tar -xzvf cudnn-8.0-linux-x64-v6.0.tgz 
+$ sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
+$ sudo cp cuda/lib64/* /usr/local/cuda/lib64 
