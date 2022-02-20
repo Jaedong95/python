@@ -20,10 +20,13 @@ $ sudo sh cuda_8.0.61.2_linux-run
 이후 사용권 계약에 동의하고, 기본 사항 지정 
 
 2. bash_profile에 해당 환경 변수 추가 
+$ sudo vi ~/.bashrc
+
+맨 밑에 다음 내용 추가 
 $ export LD_LIBRARY_PATH='$LD_LIBRARY_PATH:/usr/local/cuda/lib64'
 $ export CUDA_HOME='/usr/local/cuda'
 
-* nvidia-smi   # test 
+$ source ~/.bashrc
 
 3. cuDNN 설치   
 - cuDNN 홈페이지에 개발자로 등록 필요
@@ -31,3 +34,33 @@ $ export CUDA_HOME='/usr/local/cuda'
 $ tar -xzvf cudnn-8.0-linux-x64-v6.0.tgz 
 $ sudo cp cuda/include/cudnn.h /usr/local/cuda/include/
 $ sudo cp cuda/lib64/* /usr/local/cuda/lib64 
+
+* CUDA, CUDNN 설치 확인
+$ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+$ nvcc --version
+$ nvidia-smi 
+
+4. Python 설치 (있을 경우 생략 가능)
+$ sudo apt-get install python3-pip python3-dev python-virtualenv
+
+5. 가상환경 생성 및 활성화
+$ virtualenv --no-site-packages -p python3 ~/cori_test 
+
+* --no-site-packages가 기본 옵션으로 변경 됨  -> 다음 명령어 사용 
+
+$ virtualenv -p python3 ~/cori_test  
+
+파이썬 3.x를 사용하도록 환경을 설정했다. 
+
+$ source ~/cori_test/bin/activate 
+
+6. 대화형 파이썬 쉘 설치 (IPython)
+$ pip install ipython 
+
+7. Tensorflow 설치
+$ pip install --upgrade tensorflow-gpu  # cpu만 사용하고 싶을 경우 pip install --upgrade tensorflow 
+
+8. Keras 설치
+$ pip install keras
+
+
