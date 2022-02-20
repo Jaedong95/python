@@ -1,6 +1,6 @@
 1. import theano 
 [error]
--> no section 'bias'..
+-> no section 'bias' 
 [solution]
 $ pip uninstall theano 
 $ conda install theano
