@@ -1,0 +1,138 @@
+''' 딥러닝으로 이진 분류 문제 풀기, 2022.02.21 '''
+1. 사용 데이터
+- 간질성 발작 인식 데이터셋
+- UCI 머신러닝 저장소인 http://archive.ics.uci.edu/ml/datasets/Epileptic+Seizure+Recognition에서 찾을 수 있음
+- 목표: 입력 특징들을 고려해 환자가 발작을 일으키는지 여부를 예측할 수 있는 신경망을 만드는 것 
+
+- 해당 데이터셋에는 11,500개 행이 있으며 각 행에는 178개의 데이터 점이 포함되어 있음
+- 각 데이터 점은 1초 분량의 EEG 기록 표본과 100명의 서로 다른 환자들 간에 생성된 상태를 나타냄 
+- 클래스 0: 발작 없음 (원래 상태 2 ~ 상태 5), 클래스 1: 발작 (원래 상태 1)
+
+* 이진 분류 문제를 구현하기 위해 상태2~5를 클래스 0으로, 상태1을 클래스 1로 변경한 것인데, 이와 같은 경우에는 데이터셋이 불균형하며,
+  이를 해결하기 위해 사용자 지정 콜백을 사용해 ROC AUC 점수를 계산
+
+
+2. 비용 함수 
+- 발작 확률을 예측하려면 클래스 = 1인 분류기 필요 (기존 로지스틱 회귀 모델에서와 같이 출력이 [0, 1]로 제한) 
+- 비용 함수로 이진 교차 엔트로피 (binary cross-entropy)를 사용함
+
+
+3. metrics를 사용해 성능 평가
+- 딥러닝 문제에서 손실이 크게 의미가 없는 경우에는 손실 대신 정확도 등 계량(metrics)을 모델 성능 지표로 대신할 수 있음
+
+$ def binary_accuracy(y_true, y_pred):
+$     return K_mean(K_equal(y_true, K.round(y_pred)), axis=-1)
+
+
+4. 입력 계층 
+- 입력 계층은 데이터셋의 차원을 알아야 함 
+
+$ def build_network(input_features=None):
+$     inputs = Input(shape=(input_features, ), name='input') 
+
+
+5. 은닉 계층
+1) 너무 많은 뉴런을 사용할 경우
+- 분산이 큰 모델을 개발할 가능성이 있음 (과적합)
+- 덜 복잡한 모델보다 느리게 훈련됨
+
+2) 너무 적은 뉴런을 사용할 경우
+- 상당히 빠른 신경망
+- 편향이 커서 잘 예측하지 못함 
+
+3) 최종
+- 특징들 사이에 상호작용이 많이 일어난다는 가정 하에 은닉 계층을 다섯 개로 사용 
+- 첫 번째 계층을 이루고 있는 128개 뉴런 (입력 크기보다 조금 작은 크기)로 시작해 출력 방향으로 갈 수록 뉴런 개수를 절반으로 줄임
+
+$ x = Dense(128, activation='relu', name='hidden1')(inputs)
+$ x = Dense(64, activation='relu', name='hidden2')(x)
+$ x = Dense(32, activation='relu', name='hidden3')(x)
+$ x = Dense(16, activation='relu', name='hidden4')(x)
+$ x = Dense(8, activation='relu', name='hidden5')(x)
+
+
+6. 출력 계층 
+- 해당 문제는 이진 분류기를 작성하고 있으므로 신경망에서 관측지가 클래스 1에 속할 확률을 출력하도록 함 
+- sigmoid 활성이 적합 
+
+$ prediction = Dense(1, activation='sigmoid', name='final')(x)
+
+
+7. 모델 학습 
+$ input_features = data['train_X'].shape[1]   # 열 개수 
+$ model = build_network(input_features=input_features)
+$ model.fit(x=data['train_X'], y=data['train_y'], batch_size=32, epochs=20, verbose=1,
+$          validation_data=(data['val_X'], data['val_y']), callbacks=callbacks)
+
+
+8. tensorboard로 훈련 과정 체크 
+- train_loss와 val_loss를 비교해 본 결과, 8 epoch 이후 다시 과적합 되고 있는 것을 확인할 수 있었음
+
+
+9. Checkpoint Callback
+- 정해진 간격으로 모델을 저장하는 콜백 
+- 해당 콜백을 이용하면 과적합이 시작되기 전에 멈춤으로써 분산이 가장 작은 신경망을 사용할 수 있음
+
+$ checkpoint_callback = ModelCheckpoint(
+$                       filepath='./model-weigths.{epoch:02d}-{val_acc:.6f}.hdf5',
+$                       monitor='val_acc', verbose=1, save_best_only=True)
+
+-> ModelCheckpoint에 새롭고 가장 좋은 검증 정확도(val_acc)를 달성할 때 마다 모델 사본을 저장함 
+
+
+10. 사용자 지정 Callback을 통해 ROC AUC 측정 
+- 훈련 집합과 테스트 집합 모두와 관련해 매 epoch 말에 'ROC AUC'을 계산하는 맞춤형 콜백 구축 
+- 고유의 콜백을 만들고, 필요한 방법을 재정의하자
+
+$ from keras.callback import Callback
+
+$ class RocAUCScore(Callback):
+$     def __init__(self, training_data, validation_data):
+$         self.x = training_data[0]
+$         self.y = training_data[1]
+$         self.x_val = validation_data[0]
+$         self.y_val = validation_data[1]
+$         super(RocAUCScore, self).__init__()
+$ 
+$     def on_epoch_end(self, epoch, logs={}):
+$         y_pred = self.model.predict(self.x)
+$         roc = roc_auc_score(self.y, y_pred)
+$         y_pred_val = self.model.predict(self.x_val)
+$         roc_val = roc_auc_score(self.y_val, y_pred_val)
+$         print('\n *** ROC AUC Score: %s - roc-auc_val: %s ***' % (str(roc), str(roc_val)))
+$
+$     return 
+
+
+11. Callback 생성자 함수
+- 여러 Callback을 한꺼번에 return하는 생성자 함수를 만들면 나중에 사용하기 좀 더 편리함
+
+$ def create_callbacks(data):
+$     tensorboard_callback = TensorBoard(
+$         log_dir=os.path.join(os.getcwd(), 'tb_log', '5h_adam_20epochs'),
+$         histogram_freq=1, batch_size=32, write_graph=True, write_grads=False)
+$     roc_auc_callback = RocAUCScore(
+$         training_data=(data['train_X'], data['train_y']),
+$         validation_data=(data['val_X'], data['val_y']))
+$     checkpoint_callback = ModelCheckpoint(
+$         filepath='./model-weights.{epoch:02d}-{val_acc:.6f}.hdf5',
+$         monitor='val_acc', verbose=1, save_best_only=True)
+$
+$     return [tensorboard_callback, roc_auc_callback, checkpoint_callback] 
+
+
+
+12. 정밀도, 재현율 및 f1 점수 측정 
+- 정밀도, 재현율 또는 기타 클래스 기반 계량을 게산할 때는 일부 조작점 (operating point)을 선택해 .predict() 출력을 변환해야 함 
+
+$ def class_from_prob(x, operating_point=0.5):
+$     x[x >= operating_point] = 1 
+$     x[x < operating_point] = 0 
+$     return x 
+
+이후 sklearn.metric에 있는 전형적인 계량들을 자유롭게 재사용 가능 
+$ y_prob_val = model.predict(data['val_X'])
+$ y_hat_val = class_from_prob(y_prob_val)
+
+$ print(classification_report(data['val_y'], y_hat_val))
+ 

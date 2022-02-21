@@ -135,6 +135,7 @@ $ from sklearn.preprocessing import StandardScaler
 $ scaler = StandardScaler()
 $ train = scaler.fit_transform(train) 
 
+* val = scaler.transform(val) 
 
 4. dict를 이용한 데이터 구조화
 $ data = dict()
