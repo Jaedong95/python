@@ -136,7 +136,7 @@ $ train = scaler.fit_transform(train)
 
 4. dict를 이용한 데이터 구조화
 $ data = dict()
-$ data['train_x'] = train[:, 0:9]
+$ data['train_x'] = train[:, 0:10]
 $ data['train_y'] = train[:, 10]
 
 ... 
@@ -175,4 +175,48 @@ $ data['scaler'] = scaler
 - (32, 1) 형태 
 
 
+7. model 최적화기 수정 
+- 사용자 정의 Adam 인스턴스를 정의해 대신 사용하면 학습 속도 등을 조정할 수 있음
 
+$ from keras.optimizers import Adam
+
+$ adam_optimizer = Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+$ model.compile(optimizer=adam_optimizer, loss='mean_absolute_error') 
+
+
+8. model 학습
+$ model.fit(x=data['train_x'], y=data['train_y'], batch_size=32, epochs=200, verbose=1, validation_data=(data['val_x'], data['val_y']))
+
+- 케라스에서 기본 batch size = 32로, 이는 케라스가 사용할 미니배치의 크기를 나타냄 (미니배치를 사용하지 않을 경우 batch size=None으로 지정) 
+- verbose를 2로 지정하면 미니배치마다 손실 정보를 출력 
+
+
+9. model 성능 측정 
+- train dataset의 MAE 값과 val dataset의 MAE 값을 비교하여 두 오차가 얼만큼 차이나는지(분산)에 따라 과적합 여부 판단 
+- 훈련 오차와 검증 오차의 차이가 클 수록 분산이 높다는 뜻이고, 이는 훈련 집합에 과적합하다는 뜻으로 볼 수 있음 
+
+* 모델이 많은 편향을 가지고 있을 경우에는 모델의 계층이나 뉴런 중 하나를 늘리거나 아니면 둘 다 늘림으로써 편향을 줄일 수 있음
+
+ex) 심층 신경망을 사용하여 모델 학습 시 train MAE: 0.075, MLP를 이용한 모델 학습 시 train MAE: 0.19이면 심층 신경망을 사용할 경우 편향이 줄어든다는 것을 알 수 있음 
+
+* 분산을 줄이는 간단한 방법은 훈련 데이터를 추가하거나, L2 정규화 혹은 드롭아웃과 같은 정규화 기법 적용 
+
+
+10. model의 하이퍼파라미터 조율
+- 은닉 계층의 개수를 실험 
+- 각 은닉 계층의 뉴런 개수를 계층 개수와 비교하며 실험
+- 드롭아웃과 정직화를 보태어 실험
+- Adam -> SGD나 RMSProp을 써보거나 Adam을 사용하되 학습 속도를 다르게 해서 실험 
+
+
+11. 훈련된 model을 저장하고 적재 
+$ model.save('regression_model.h5')
+
+$ from keras.models import load_model
+$ model = load_model('regression_model.h5') 
+
+* load_model시 str ~ decode error가 뜨는 경우
+-> $ pip3 install 'h5py==2.10.0' --force-reinstall
+
+
+''' 
