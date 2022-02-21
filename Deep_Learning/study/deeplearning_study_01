@@ -124,5 +124,23 @@ z = x1*a1 + x2*a2 + x3*a3 + b
 5) 신경망을 훈련하고 조절 
 
 
+3. StandardScaler를 이용한 데이터 정규화
+- 데이터를 정규화함으로써, 각 특징의 눈금이 서로 비교할 수 있게 됨 
+- 이러한 눈금이 모두 활성 함수가 처리할 수 있는 범위 내에 있도록 하는게 매우 중요
+
+$ from sklearn.preprocessing import StandardScaler
+
+$ scaler = StandardScaler()
+$ train = scaler.fit_transform(train) 
+
+
+4. dict를 이용한 데이터 구조화
+$ data = dict()
+$ data['train_x'] = train[:, 0:9]
+$ data['train_y'] = train[:, 10]
+
+... 
+
+$ data['scaler'] = scaler 
 
 
