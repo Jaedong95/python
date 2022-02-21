@@ -1,0 +1,3 @@
+[submodule "Deep_Learning/study/deep_learning_quick_reference"]
+	path = Deep_Learning/study/deep_learning_quick_reference
+	url = https://github.com/mbernico/deep_learning_quick_reference
