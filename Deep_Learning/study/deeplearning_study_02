@@ -336,6 +336,9 @@ $     model = build_network(keep_prob=hyperparameters['keep_prob'], optimier=hyp
 $     model.fit(x=data['train_X'], y=data['train_y'], batch_size=hyperparameters['batch_size'], epochs=int(num_iters))
 $     loss = model.evaluate(x=data['val_X'], y=data['val_y'], verbose=0)
 $     return {'loss': loss} 
--> try_params 함수는 원하는 수의 계량을 추적하는 데 사용할 수 있는 딕셔너리를 반환하는데, 
+-> try_params 함수는 원하는 수의 계량을 추적하는 데 사용할 수 있는 딕셔너리를 반환하는데, 실행 결과값을 비교하는데 사용하므로 손실이 필요함 
 
+1) 실행
+- hyperband 객체는 .run() 함수를 호출해 알고리즘을 실행
+$ results = hb.run()
 
