@@ -135,4 +135,207 @@ $ y_prob_val = model.predict(data['val_X'])
 $ y_hat_val = class_from_prob(y_prob_val)
 
 $ print(classification_report(data['val_y'], y_hat_val))
+
+
+''' 딥러닝으로 다중 분류 문제 풀기, 2022.02.21 ''' 
+1. 사용 데이터
+- MNIST 데이터셋으로, 각 숫자를 나타내는 10개의 클래스 (0~9)에 속하는 6만 개의 손글씨 숫자로 구성
+- 케라스에 내장된 MNIST 적재기를 사용하여 실습할 예정 
+- 5만 개의 관측치가 있는 훈련 집합과 1만 개의 관측치가 들어 있는 테스트 집합으로 나뉘어 있으며 훈련 집합의 끝부분에서 5,000개의 관측 결과를 검증 집합으로 사용함 
+
+
+2. 입력 평탄화
+- 입력되는 각 관측: 28 * 28 픽셀 .. 우리는 현재 2차원 벡터에서 신경망 훈련하는 방법만 알고 있기에 이를 1 * 784 형태의 입력 벡터로 평탄화 수행
+
+
+3. 범주형 출력 
+- 각 클래스 당 뉴런 한 개가 대응하는 꼴로 출력 계층이 이루어짐 
+- 각 클래스에 연관된 각 뉴런은 해당 클래스의 확률을 0과 1사이의 값으로 예측하도록 훈련됨  -> softmax 사용 
+
+
+4. 비용 함수
+- 다항 교차 엔트로피 (multinomial cross-entropy), 범주형 교차 엔트로피 (categorical cross-entropy) 사용 
+
+
+5. 계량 (metrics)
+- 범주형 교차 엔트로피를 사용해도 신경망에서 기대할 수 있는 예측 품질에 관해 많은 것을 말해주지는 않음
+- ROC AUC와 같은 이진 분류 계량도 이진 분류 AUC를 넘어서는 것은 실제로 정의되어 있지 않기 때문에 사용할 수 없음
+- MNIST 데이터셋은 균형을 이루고 있기 때문에, 정확도를 평가 지표로 사용함 
+
+
+6. 데이터 전처리 
+1) MNIST 적재
+$ (train_X, train_y), (test_X, test_y) = mnist.load_data()
+
+2) 데이터 평탄화
+- train_X의 shape은 50,000 * 28 * 28이기 때문에, 50,000 * 784 형태로 평탄화 
+
+$ train_X = train_X.reshape(-1, 784) 
+
+3) 정규화
+- 이전까지는 StandardScaler를 이용하여 크기를 조정한 반면, MNIST data의 경우 모든 픽셀이 동일하게 0~255 범위 안에 있어서 StandardScaler를 사용하지 않아도 됨 
+- 실수 형태로 형변환 후 0~1 사이가 되도록 255로 나누기 
+
+$ train_X = train_X.astype('float32')
+$ train_X /= 255 
+
+4) 종속 변수 벡터 -> 범주형 벡터 
+$ train_y = to_categorical(train_y)
+
+
+7. 모델 구조 생성 
+1) 입력 계층 
+$ def build_network(input_features=None):
+$     inputs = Input(shape=(input_features,), name='input')
+
+2) 은닉 계층
+- 입력 벡터의 784개 원소 개수에 비해 좀 적은 개수인 512를 첫 번째 은닉 계층 뉴런 수로 설정 
+- 이후 층을 쌓을 때 마다 절반씩 뉴런 수를 줄임 
+
+3) 출력 계층
+- 각 클래스마다 하나의 뉴런이 있게 되므로 10개의 뉴런 필요
+
+$ prediction = Dense(10, activation='softmax', name='output')(x)
+
+* softmax 활성 
+-> 클래스별 예측 확률의 총합이 1로 합산되게 하고, 출력을 전체 클래스 소속 확률로 사용할 수 있도록 압축 
+   대부분의 다중 클래스 분류 문제에서 소프트맥스를 사용함
+
+
+8. 모델 학습 및 평가 
+- callback은 앞서 사용한 callback을 그대로 가져와서 사용
+- early stopping callback을 사용해도 과적합이 발생하는 것을 볼 수 있는데, 이를 해결하기 위해 추가적인 방법(드롭다운, L2 regularization) 도입 
+
+1) 다중 클래스 모델 평가
+- 모델을 측정하기 위해 metrics 지표들을 사용
+
+$ y_softmax = model.predict(data['test_X'])
+$ y_hat = y_softmax.argmax(axis=-1)
+
+$ from sklearn.metrics import classification_report 
+$ import numpy as np
  
+$ print(classification_report(np.argmax(data['test_y'], axis=-1), y_hat))
+
+
+9. 드롭아웃을 이용한 분산 통제 
+- 드롭아웃은 은닉 계층에서 뉴런을 중도 탈락시킴
+- 모든 미니배치를 처리하는 동안 각 은닉 계층에서 꺼버릴 (off) 마디를 무작위로 선택
+- 드롭아웃을 수행할 경우 모델 가중치는 상대적으로 더 작은 상태로 남게 되며, 신경망 크기가 더 작을수록 데이터에 과적합 될 가능성이 줄어듬
+- 드롭아웃 비율은 0.5로 지정하는 편이 가장 안전하고, 첫 번째 계층에서만 드롭아웃을 사용하는게 두 번째로 안전한 방법
+
+$ from keras.layers import Input, Dense, Dropout 
+
+$ x = Dense(512, activation='relu', name='hidden1')(inputs)
+$ x = Dropout(0.5)(x)
+$ x = Dense(256, activation='relu', name='hidden2')(x)
+
+-> 위와 같이 Dense 계층 뒤에 Dropout 계층을 삽입하는 형태로 구현 
+
+
+10. 정칙화를 이용한 분산 통제 
+- 과적합을 제어하는 또 다른 방법으로, 모델이 커질수록 개별 가중치를 벌충
+- 신경망을 정칙화할 때는 L1, L2 두 가지 유형의 정칙화를 사용할 수 있는데, 대체로 L2 정칙화가 계산 측면에서 더 효율적 
+- 람다 값을 이용해 가중치 중에서 큰 값을 벌충함으로써 전체적으로 가중치가 더 작은 신경망을 생성
+- 정칙화는 케라스 계층의 가중치 (weights), 편향치 (biases) 및 활성치 (activations)에 적용될 수 있음
+
+$ x = Dense(512, activation='relu', name='hidden1', kernel_regularizer='l2')(inputs)
+$ x = Dropout(0.5)(x)
+$ x = Dense(256, activation='relu', name='hidden2', kernel_regularizer='l2')(x)
+
+
+''' 하이퍼 파라미터 튜닝 ''' 
+1. 거인의 어깨 위에 서기
+- 새로운 딥러닝 문제를 해결하기 위해 신경망 아키텍처를 설계해야 한다면, 가장 먼저 이전에 만족스럽게 해결되었던 유사한 문제를 찾아보자
+- 해당 아키텍처에서 우리 모델에 적합한 이상적인 하이퍼파라미터를 찾아야 함 
+
+
+2. 조율할 하이퍼파라미터 종류
+- 최적화기 선택: Adma -> rmsprop이나 잘 조율된 SGD가 더 나을 수도 있음
+- 학습 속도, 운동량, 감쇠(decay)와 같은 조정할 수 있는 하이퍼파라미터 조율
+- 신경망 가중치 활성화
+- 뉴런 활성
+- Dropout Rate이나 L2 Regularization에 쓰이는 정규화 파라미터
+- 배치 크기
+
+
+3. 공통 전략
+- 위에서 언급한 하이퍼파라미터 전부를 탐색하기에는 너무 많은 시간이 소요됨 
+- 모든 머신러닝 모델에서 사용되는 하이퍼파라미터 최적화를 위한 일반적인 전략 집합이 있음
+
+1) 격자 탐색 (Grid Search)
+- 모든 것을 뒤져보거나, 최소한 서로 떨어진 덩어리들을 마구 뒤져본 후에 마구잡이로 찾아낸 하이퍼파라미터들의 최상의 조합 탐색 
+- 식별한 하이퍼파라미터 공간에서 최상의 해법과 덜 좋은 그 밖의 해법을 모두 찾을 수 있음
+- Bt 현실적으로 있을 법한 모든 변수들의 모든 값을 탐색하기에는 벅참
+
+2) 임의 탐색 (Random Search)
+- 각 파라미터 분포에서 임의로 표본을 추출해 n개 사례를 시도 
+
+3) 베이즈 최적화 (Bayesian Optimization)
+- 이전 관측치를 사용해 다음에 표본으로 추출할 하이퍼파라미터 집합을 예측
+- 마구잡이 대입 방식보다 우수하지만, 격자 탐색을 이용한 방식보다 성능 향상이 조금밖에 이뤄지지 않음
+
+4) 유전 알고리즘 (Genetic Algorithms)
+- 머신러닝에 대한 매우 흥미롭고 활발한 연구 분야이지만, 베이즈 최적화와 마찬가지로 이전의 경험에 의존
+- 심층 신경망 파라미터 최적화에 좋은 선택지는 아님
+- 해당 분야의 최신 연구 중 일부는 주어진 신경망 아키텍처에 대한 최적의 파라미터를 예측할 수 있는 신경망을 훈련하는 일을 연구
+
+
+4. 임의 탐색 구현
+- kerasClassifier 클래스를 사용해 모델을 포장함으로써 사이킷런 API와 호환되도록 코드를 구현함 
+- 이후 Scikit-learn의 RandomSearchCV 클래스를 사용해 하이퍼파라미터 탐색 수행 
+- 모델 빌드 함수를 약간 변경하여 임의 탐색을 구현함
+
+$ def build_network(keep_prob=0.5, optimizer='adam')   # 탐색하려는 하이퍼파라미터로 파라미터 지정
+$     inputs = Input(shape=(784, ), name='input')
+$     x = Dense(512, activation='relu', name='hidden')(inputs)
+$     prediction = Dense(10, activation='softmax', name='output')(x)
+$
+$     model = Model(inputs=inputs, outputs=prediction)
+$     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+$     return model
+
+- 이후 탐색하려는 모든 있을 법한 하이퍼파라미터 및 값에 대한 공간을 딕셔너리 형식으로 반환하는 함수를 만듬
+$ def create_hyperparameters():
+$     batches = [10, 20, 30, 40, 50] 
+$     optimizers = ['rmsprop', 'adam', 'adadelta']
+$     dropout = np.linspace(0.1, 0.5, 5)
+$     return {'batch_size': batches, 'optimizer': optimizers, 'keep_prob': dropout}
+
+- RandomSearchCV 클래스를 이용해, 이 두 개를 연결해보자
+$ model = KerasClassifier(build_fn=build_network, verbose=0)   # scikit-learn과 호환되도록 감싸줌
+$ hyperparameters = create_hyperparameters()   # 하이퍼파라미터 생성 
+$ search = RandomizedSearchCV(estimator=model, param_distributions=hyperparamters, n_iter=10, n_jobs=1, cv=3, verbose=1)   # RandomSerachCV 객체 생성 
+
+$ search.fit(data['train_X'], data['train_y']) 
+$ print(search.best_params_)
+
+-> RandomizedSearchCV 객체를 적합시키면 해당 객체는 파라미터 분포에서 값들을 임의로 선택한 후 모델에 적용한다.
+   해당 작업을 10회 (n_iter) 수행하며, 3겹 교차 검증을 사용했기 때문에 각 조합을 3번 시도한다. (총 30번 학습) 
+
+
+5. 하이퍼밴드 
+- 몇 차례 되지 않는 반복을 거친 후에도 최상의 하이퍼파라미터 구성이 다른 구성보다 뛰어난 성능을 발휘한다는 생각을 바탕으로 함 
+- 있을 법한 구성 집합 (n: 1회 반복 당 훈련)을 가지고 시도하는데, 첫 번째 훈련 루프가 완료되면 결과 구성이 성능별로 정렬됨 
+- 결과가 나오면 위쪽 구성 성분이 더 많은 반복을 늘리기 위해 훈련하며, 절반을 줄이고 접는 과정을 반복하며 탐색 시 지정한 횟수만큼 반복 
+- 이러한 구현은 대부분 FastML을 바탕으로 구현한 것에서 파생되며, hyperband.py 코드를 이용함 
+
+$ from hyperband import Hyperband 
+$ 
+$ hb = Hyperband(data, get_params, try_params)
+-> get_params와 try_params는 각각 함수
+
+$ def get_params():   # 탐색 중인 하이퍼파라미터 공간으로부터 표본 추출 
+$     batches = np.random.choice([5, 10, 100]) 
+$     optimizers = np.random.choice(['rmsprop', 'adam', 'adadelta'])
+$     dropout = np.random.choice(np.linspace(0.1, 0.5, 5))
+$     return {'batch_size': batches, 'optimizer': optimizers, 'keep_prob': dropout}
+
+$ def try_params():   # 반복에 대한 하이퍼파라미터 구성을 평가하고 손실 반환 
+$     model = build_network(keep_prob=hyperparameters['keep_prob'], optimier=hyperparameters['optimizer'])
+$     model.fit(x=data['train_X'], y=data['train_y'], batch_size=hyperparameters['batch_size'], epochs=int(num_iters))
+$     loss = model.evaluate(x=data['val_X'], y=data['val_y'], verbose=0)
+$     return {'loss': loss} 
+-> try_params 함수는 원하는 수의 계량을 추적하는 데 사용할 수 있는 딕셔너리를 반환하는데, 
+
+
