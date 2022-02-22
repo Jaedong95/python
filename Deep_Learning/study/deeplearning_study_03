@@ -124,6 +124,8 @@ $           verbose=1, callbacks=callbacks)
 - 케라스에서 제공하는 데이터 변형 클래스로, 모델을 훈련하는 동안 변형 코드를 제시하지 않아도 즉시 변형할 수 있도록 함 
 - 변형을 코드화하고, 훈련 집합에 무작위로 적용하고, 저장하는 방법보다 훨씬 편리 
 
+$ from tensorflow.keras.preprocessing.image import ImageDataGenerator
+$ 
 $ def create_datagen(train_X):
 $     data_generator = ImageDataGenerator(rotation_range=20, width_shift_range=0.02, height_shift_range=0.02,
 $                                         horizontal_flip=True)
@@ -140,3 +142,111 @@ $ 		      validation_data=(data['val_X'], data['val_y']), verbose=1, callbacks=c
 
 -> ImageDataGenerator.flow() 함수를 호출할 때 마다 제공된 이미지에 무작위 변환을 적용해 새로운 훈련용 미니배치를 생성함
    steps_per_epoch 파라미터를 통해 훈련 집합으로부터 몇 번이든 표본을 바꿀 수 있으며, 매번 무작위 변형을 적용할 수 있음 
+
+
+''' 전이 학습, 2022.02.22 '''
+0. 이미지넷 데이터셋
+- 최첨단 기술이라 생각할 수 있는 심층 신경망은 '이미지넷' 데이터셋으로 훈련하는 경우가 많음 
+- 120만개 이미지를 1,000개 클래스로 분류하는 분류기
+
+
+1. 전이 학습
+- 수많은 계층이 있고 수백만 개 이미지로 훈련을 받은 최첨단 신경망 중 하나를 아주 적은 데이터만 사용하는 우리 문제에 적용할 수 있도록 도와줌
+- 전이 학습을 하려면 다음 단계를 수행함 
+
+1) 매우 복잡한 컴퓨터 비전 문제로 훈련을 받은 모델을 가져옴 (원본 정의역)
+2) 신경망의 마지막 계층(softmax), 추가 완전 연결 계층들을 제거
+3) 마지막 몇 개의 계층을 새로운 문제에 적합한 계층으로 바꿈 (대상 정의역)
+4) 이미 훈련된 모든 계층을 동결해 모델 학습 중 가중치가 변경되지 않도록 설정
+5) 대상 정의역 데이터를 이용해 신경망 훈련 
+
+* 동결된 계층(frozen layer)의 일부 또는 전부를 선택적으로 풀어서 전체 신경망을 미세 조정(fine-tuning)하고 아주 느린 학습 속도로 다시 훈련하기도 함 
+
+
+2. 전이 학습을 사용하는 대표적인 경우들 
+1) 제한된 데이터
+- 이미지가 최소 수천개의 학습용 이미지, 보통 1만 ~ 2만개의 이미지 정도 있는 경우 
+
+2) 공통 문제 정의역
+- 대상 정의역이 원본 정의역과 어느 정도 비슷한 경우
+
+
+3. 원본 및 대상 정의역의 크기와 유사도의 영향
+1) 데이터는 많으면 많을수록 좋다
+- 구글에서는 3억 회의 관측치를 포함하는 내부 데이터셋으로 모델 평가를 진행해보았는데, 더 많은 데이터가 원본 정의역에 항상 도움이 된 것을 확인
+- 대상 정의역에서도 마찬가지로 데이터가 많을 수록 성능이 좋았음
+
+2) 원본/대상 정의역 유사도 
+- 전이 학습 애플리케이션의 원본 정의역 및 대상 정의역이 매우 다를 경우 유사한 경우보다 더 많은 데이터가 필요
+- 분류해야 하는 문제가 시각적으로 매우 다른 경우, 특징 추출 계층들이 학습을 아주 많이 다시 해야 했기 때문에 미세 조정도 더 많이 해야 했음 
+
+
+4. 대상 정의역 
+- 캐글이 제공하는 개/고양이 데이터셋을 이용한 이진 분류 문제 
+- 25,000개에 이르는 개/고양이 이미지로 구성되어 있으며, 각각 12,5000개씩 한 클래스를 구성하고 있음 
+- https://www.kaggle.com/c/dogs-vs-cats/data에서 다운로드 가능 
+- 각 사진에 개 또는 고양이가 들어 있지만, 둘 다 들어있지는 않음 
+
+
+5. 원본 정의역 
+- 이미지넷으로 훈련한 심층 신경망 
+- 개와 고양이의 이미지가 이미지넷 데이터셋에도 모두 있음 
+
+1) 원본 신경망 아키텍처
+- Inception-V3 신경망 아키텍처 (https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Szegedy_Rethinking_the_Inception_CVPR_2016_paper.pdf) 사용
+- 해당 아키텍처는 인셉션 모듈이라고 하는 빌딩 블록을 기반으로 하며, 각 인셉션 모듈에서 이전의 활성치가 1*1 합성곱, 3*3 합성곱, 5*5 합성곱 및 최대 풀링 계층에 부여되며
+  이후 출력이 함께 연결됨
+- 해당 신경망은 여러 초기화 모듈로 구성되어 있으며, 마지막 두 계층은 모두 완전히 연결되어 있고 출력 계층에는 softmax 활성을 지닌 1,000개 뉴런이 있음
+- 케라스는 keras.applications 안에 자리잡고 있는 '신경망 동물원'에 여러 인기있는 신경망을 두었으며, 여기서는 이를 활용함 
+
+$ from keras.applications.inception_v3 import InceptionV3  
+$ 
+$ base_model = InceptionV3(weights='imagenet', include_top=False)
+
+-> 'include_top=False' option을 사용하면 신경망의 최상위 계층을 우리가 원하지 않는다는 뜻으로, 직접 그것들을 제거할 여지를 남길 수 있음 
+   해당 코드를 통해 Inception-V3 신경망 아키텍처를 내려받아 가중치를 저장하고, 임시저장(cache)
+
+
+2) 전이 신경망 아키텍처
+- 최종 두 계층을 사용 사례에 더 적합한 완전 연결 계층으로 교체해야 함 
+
+$ x = base_model.output   
+$ x = GlobalAveragePooling2D()(x)
+$ x = Dense(1024, activation='relu')(x) 
+$ predictions = Dense(1, activation='sigmoid')(x) 
+
+$ model = Model(inputs=base_model.input, outputs=predictions)
+
+-> GlobalAveragePooling Layer를 통해 이전 계층의 4차원 출력을 2차원 계층으로 평탄화하고, 이후 완전 연결 계층과 연결
+
+3) 기초 모델의 계층들 동결
+- 새로운 완전 연결 계층들이 학습될 때 기존 가중치들이 변하지 않도록 기초 모델의 계층들을 동결시킴
+
+$ for layer in base_model.layers:
+$     layer.trainable = False 
+
+
+6. 데이터 준비
+1) 데이터 입력 
+- 캐글에서 제공하는 개/고양이 이미지의 해상도와 크기가 모두 달라, 이에 대한 전처리를 수행해 동일하게 통일해 주어야 함 
+- Incpetion-V3의 input image size: 299 * 299 * 3 
+
+$ train_datagen = ImageDataGenerator(rescale=1./255)
+$ val_datagen = ImageDataGenerator(rescale=1./255)
+
+$ train_generator = train_datagen.flow_from_directory(train_data_dir, 
+$     target_size=(img_width, img_height),
+$     batch_size=batch_size, 
+$     class_mode='binary')    
+
+$ validation_generator = val_datagen.flow_from_directory(val_data_dir,
+$     target_size=(img_width, img_height),
+$     batch_size=batch_size,
+$     class_mode='binary')
+
+-> 데이터 생성기의 flow_from_directory() 메서드를 활용하여 경로를 지정받아 해당 경로를 통해 이미지 배치를 생성하도록 하였음 
+   이와 같이 할 경우 디스크에서 이미지를 끌어 오는 모든 작업을 자동으로 수행하며, 이러한 작업을 한 번에 1배치씩 처리
+
+
+7. 모델 훈련 (특징 추출)
+- 신경망을 동결한 상태에서 10 epoch에 걸친 훈련을 통해 특징을 추출함 
