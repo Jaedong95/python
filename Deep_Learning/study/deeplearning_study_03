@@ -1,0 +1,142 @@
+''' CNN 훈련하기, 2022.02.22 '''
+1. 합성곱 계층 
+- 합성곱 계층에서 각 유닛은 비선형성과 결합된 필터들이라고 할 수 있음
+
+$ from tensorflow.keras.layers import Conv2D
+$
+$ Conv2D(64, kernel_size=(3, 3), activation='relu', name='conv')
+
+-> 해당 계층에는 64개의 개별 유닛이 있으며, 각 유닛은 3*3*3 꼴로 이루어진 필터라고 할 수 있음
+
+- 32*32*3 형태의 입력 이미지 -> 'conv' layer -> 30 * 30 * 64 형태의 출력이 나옴
+
+1) 합성곱 계층의 장점
+- 32*32*3 형태의 입력 이미지  -> 3,072개의 입력 파라미터 
+- 30*30*64 형태의 출력  -> 57,600개의 출력 파라미터 
+- 이 둘을 완전 연결 계층을 사용해 연결할 경우, 해당 계층에는 176,947,200개의 훈련 가능한 파라미터가 나옴
+- Bt 이 둘을 합성곱 계층을 사용하여 64개의 3*3*3 필터를 사용할 경우 1,792개의 파라미터에 대해 64개의 편향치만 추가 
+     (훨씬 적은 파라미터)
+
+
+* Convolution Parameter 개수 구하는 방법 
+-> (filter width * filter height * input channel) * filter 개수 + filter 개수 (bias)
+
+2) 국부적 연결성 
+- 필터들의 크기가 고정되어 있음 -> 필터들은 인접 픽셀 간의 연결성에 초점을 맞춤 
+- 이로써 필터들은 국부적 특징 (local features)을 가장 강하게 학습할 수 있음
+- 비선형성을 지닌 계층 내의 다른 필터들과 결합하면서 점점 더 크고 복잡한 특징에 주의를 기울일 수 있음
+
+3) 풀링 계층
+- 합성공 계층이 추가될 때 합성곱 신경망의 차원을 줄이는데 사용 (과적합을 줄일 수 있음)
+- 풀링 계층을 통해 좀 더 대표성을 지니는 특징을 잘 찾아낼 수 있음
+- 일반적으로 행렬을 겹치지 않는 부분들로 나누고, 각 부분에서 최대값을 취함 (max pooling)
+
+$ from tensorflow.keras.layers import MaxPooling2D
+$
+$ pool = MaxPooling2D(pool_size=(2, 2), name='pool')
+
+* 합성곱 계층이나 풀링 계층 모두에서 패딩의 기본값은 패딩이 없음을 의미하며, padding='same' 옵션을 지정해 주어야 패딩이 적용됨
+
+4) 배치 정규화
+- 각 미니배치에 대해 각 비선형성 처리 전 또는 후에 평균이 0이고 단위 분산이 되도록 배치를 정규화 
+- 배치 정규화를 통해 각 계층이 정규화된 입력을 학습할 수 있고, 좀 더 효율적인 학습이 가능해짐
+
+$ from tensorflow.keras.layers import BatchNormalization
+$ 
+$ x = BatchNormalization(name='batch_norm')
+
+
+2. 사용 데이터셋, CIFAR-10
+- 10개 클래스로 분류되는 32*32 컬러 이미지 6만 장
+- 각 클래스 당 이미지는 6,000장 
+- 5만 개 이미지를 훈련용 집합, 5,000개 이미지를 검증용 집합, 5,000개 이미지를 테스트 집합으로 사용
+
+
+3. 모델 설계
+1) 입력
+- 합성곱 신경망을 위한 입력 텐서 계층: (N, 32, 32, 3)
+
+$ def build_network(num_gpu=1, input_shape=None):
+$     inputs = Input(shape=input_shape, name='input')
+
+2) 출력
+- 클래스 예측을 출력하며, 예측 값은 0~9에 해당 
+- softmax 사용 
+
+$ output = Dense(10, activation='softmax', name='softmax')(d2)
+
+3) 비용 함수
+- 범주형 교차 엔트로피 사용
+
+4) 계량 함수 
+- 정확도 사용 
+
+
+4. 계층 
+1) 합성곱 계층
+- 배치 정규화, 최대 풀링 및 두 개의 합성곱 계층 사용 
+
+$ conv1 = Conv2D(64, kernel_size=(3, 3), activation='relu', name='conv_1')(inputs)
+$ batch1 = BatchNormalization(name='batch_norm1')(conv1)
+$ pool1 = MaxPooling2D(pool_size=(2, 2), name='pool_1')(batch1) 
+
+-> conv2도 필터 수: 32개인 것을 제외하고는 동일 
+
+2) 완전 연결 계층
+- 두 번의 합성곱 계층과 풀링 계층을 거치면 출력 차원은 (N, 6, 6, 3) 형태가 됨
+- 해당 값이 최종 출력 계층으로 가기 전에, 먼저 완전 연결 계층과 연결되야 함 
+
+$ from tensorflow.keras.layers import Flatten, Dense, Dropout 
+$
+$ flatten = Flatten()(pool2)
+$ fc1 = Dense(512, activation='relu', name='fc1')(flatten)
+$ d1 = Dropout(rate=0.2, name='dropout1')(fc1) 
+
+-> fc2도 뉴런 수 256개인 것을 제외하고는 동일
+   flatten() 함수를 이용해 n*6*6*32 텐서를 n*1152 벡터로 평탄하게 만들고, 완전 연결 계층에 전달함
+
+
+5. 다중 GPU 이용
+$ from tensorflow.keras.utils import multi_gpu_model
+$ 
+$ model = Model(inputs=inputs, outputs=output)
+$ model = multi_gpu_model(model, num_gpu)
+
+
+6. 모델 훈련 
+1) 모델 호출 및 컴파일
+$ model = Model(inputs=inputs, outputs=output)
+$
+$ if num_gpu > 1:
+$     model = multi_gpu_model(model, num_gpu)
+$ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+2) 모델 학습
+$ model.fit(x=data['train_X'], y=data['train_y'], batch_size=32, epochs=200, validation_data=(data['val_X'], data['val_y']),
+$           verbose=1, callbacks=callbacks)
+
+
+7. 데이터 확대 (data augmentation)
+- 이미지를 변형시킨 후 원본 이미지와 변형된 이미지를 모두 사용해 훈련하는 방법
+- 수평/수직 뒤집기, 이동, 무작위 회전 등의 방법을 사용할 수 있음
+
+1) ImageDataGenerator
+- 케라스에서 제공하는 데이터 변형 클래스로, 모델을 훈련하는 동안 변형 코드를 제시하지 않아도 즉시 변형할 수 있도록 함 
+- 변형을 코드화하고, 훈련 집합에 무작위로 적용하고, 저장하는 방법보다 훨씬 편리 
+
+$ def create_datagen(train_X):
+$     data_generator = ImageDataGenerator(rotation_range=20, width_shift_range=0.02, height_shift_range=0.02,
+$                                         horizontal_flip=True)
+$     data_generator.fit(train_X)
+$
+$     return data_generator
+
+-> 이동, 회전, 수평 뒤집기를 모두 사용함 
+
+# 학습
+$ model.fit_generator(data_generator.flow(data['train_X'], data['train_y'], batch_size=32), 
+$                     steps_per_epoch=len(data['train_X']) // 32, epochs=200,   # 32: image pixels 
+$ 		      validation_data=(data['val_X'], data['val_y']), verbose=1, callbacks=callbacks)
+
+-> ImageDataGenerator.flow() 함수를 호출할 때 마다 제공된 이미지에 무작위 변환을 적용해 새로운 훈련용 미니배치를 생성함
+   steps_per_epoch 파라미터를 통해 훈련 집합으로부터 몇 번이든 표본을 바꿀 수 있으며, 매번 무작위 변형을 적용할 수 있음 
