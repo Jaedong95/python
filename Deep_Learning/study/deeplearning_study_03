@@ -250,3 +250,55 @@ $     class_mode='binary')
 
 7. 모델 훈련 (특징 추출)
 - 신경망을 동결한 상태에서 10 epoch에 걸친 훈련을 통해 특징을 추출함 
+
+$ model.fit_generator(train_generator,
+$     steps_per_epoch=train_generator.n // batch_size,
+$     epochs=epochs,
+$     validation_data=val_generator,
+$     valiation_steps=val_generator.n // batch_size,
+$     callbacks=callbacks_fe,
+$     verbose=1)
+
+-> ImageDataGenerator의 n 속성을 사용해 생성기에서 사용할 수 있는 전체 이미지 개수를 파악하고, 해당 숫자를 배치 크기로 나누어
+   epoch당 step 수 정의 
+
+$ scores = model.evaluate_generator(val_generator, steps=val_generator.n // batch_size)
+$ print('Step 1 Scores: Loss: ' + str(scores[0]) + 'Accuracy: ' + str(scores[1])))
+
+
+8. 모델 훈련 (미세 조정)
+- 신경망을 세밀하게 조정하기 위해 동결된 계층 중 일부 동결을 해제
+- 실용적인 면에서 대체로 최상위 계층의 동결을 해제하면 좋음
+- 제일 끝에 있는 인셉션 블록은 그래프상의 249번째 계층부터 시작하며, 이를 해제 
+
+1) 함수 정의
+$ def build_model_fine_tuning(model, learning_rate=0.0001, momentum=0.9):
+$     for layer in model.layers[:249]:
+$         layer.trainable = False
+    
+$     for layer in model.layers[249:]:
+$         layer.trainable = True
+    
+$     model.compile(optimizer=SGD(lr=learning_rate, momentum=momentum), loss='binary_crossentropy', metrics=['accuracy'])
+$     return model    
+
+-> 미세 조정을 위해 확률적 경사 하강에 필요한 학습 속도를 매우 작게 설정했으며, 미세조정 시에는 adam이나 rmsprop을 사용하지 않는 것이 좋음 
+
+2) 미세 조정 훈련 
+$ callbacks_ft = create_callbacks(name='fine_tuning')   # fine tuning 관련 tensorboard, 학습 로그 생성 
+$ 
+$ model = build_model_fine_tuning(model)   # 앞서 훈련을 통해 얻은 모델 전달 
+$ model.fit_generator(train_generator, 
+$     steps_per_epoch=train_generator.n // batch_size,
+$     epochs=epochs,
+$     validation_data=val_generator,
+$     validation_steps=val_generator.n // batch_size,
+$     callbacks = callbacks_ft,
+$     verbose=2)
+
+-> 학습 과정은 이전과 동일
+
+$ scores = model.evaluate_generator(val_generator, steps=val_generator.n // batch_size)
+$ print('Step 1 Scores: Loss: ' + str(scores[0]) + 'Accuracy: ' + str(scores[1])))
+
+
