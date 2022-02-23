@@ -271,7 +271,7 @@ $ print('Step 1 Scores: Loss: ' + str(scores[0]) + 'Accuracy: ' + str(scores[1])
 - 실용적인 면에서 대체로 최상위 계층의 동결을 해제하면 좋음
 - 제일 끝에 있는 인셉션 블록은 그래프상의 249번째 계층부터 시작하며, 이를 해제 
 
-1) 함수 정의sda
+1) 함수 정의
 $ def build_model_fine_tuning(model, learning_rate=0.0001, momentum=0.9):
 $     for layer in model.layers[:249]:
 $         layer.trainable = False
