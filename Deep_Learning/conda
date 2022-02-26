@@ -1,0 +1,13 @@
+1. 가상환경 생성 
+$ conda create -n [virtual env name]
+
+2. 가상환경 조회
+$ conda env list 
+
+3. 가상환경 삭제 
+$ conda remove [virtual env name] 
+
+4. 가상환경에 requirements.txt 파일을 이용하여 필요 라이브러리 설치 
+$ pip install -r /path/to/requirements.txt
+
+
