@@ -1,6 +1,6 @@
 1. import theano 
-[error]
--> no section 'bias' 
+[error] sd
+-> no section 'bias'
 [solution]
 $ pip uninstall theano 
 $ conda install theano
@@ -12,9 +12,9 @@ $ conda install theano
 sol 1. do not import TimeDistributedDense
 sol 2. downgrade keras to 1.x 
 sol 3. define TimeDistributedDenseLayer 
-
+a
 3. imort ConfigParser
-[error]
+[error]sad
 -> ModuleNotFoundError: No module named 'ConfigParser'
 [solution]
 $ try:
