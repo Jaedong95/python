@@ -1,0 +1,45 @@
+@charset utf-8;
+/* NHN Technology Service UIT MHN 140210 */
+
+.db_bottom,.mod_nanum,.lst_dsc .info_txt3,
+.story_area h5.h_tx_story,.story_area .con_tx,.review p,.review ul.rvw_list_mv li p,.aka div.aka_info p,.dsc_mileage,.score_special .reporter_line dl.p_review dd,.score_special p,.review strong.h_lst_tx,.review .user_tx_area,.review table.wrt_board .tr_star b,.review table.wrt_board td,.review table.wrt_board td .wrt_guide li,.best_lines2 ul.lines li div.lines_area span,
+.ncc_smarteditor1 *,.ncc_weeklist1 li dd dl dd.desc,.ncc_movierecommend1 .area2 *,.ncc_qna1 dd.title .text1,.ncc_qna1 dd .editorview p,.ncc_qna2 dd p.text1,.ncc_qna2 dd .editorview p,.uio_reply_list td,.ncc_movieversus1 h4,.ncc_poll1 h3 strong,.ncc_smarteditor1 p,.ncc_smarteditor1 span strong,.bx_top_section p,.bx_coverstory h5,.bx_coverstory h6,.movie_info2 dd.plot,.bx_in_coverstory2 p,.ul_ty2 dt,.ul_ty2 dd,.read_type_1 .reply_area .reply_list td,h6.view_title strong,.view_cont p,.ncc_description1 *,ul.box_guide *,.read_type_3 .text_area *,.blog_event .event_content *,.event_info *,.event_winner_info *,.read_type_3 .reply_area .reply_list *,.list_table_2 *{background-image:url(https://ssl.pstatic.net/static/movie/2014/01/blank.gif)}
+h6.view_title strong,.ncc_poll1 h3 strong{display:block}
+
+
+.review table.wrt_board td .input_star .btn_score{overflow:hidden;position:relative;top:-1px;left:3px;width:42px;height:41px;background:url(https://ssl.pstatic.net/static/movie/2014/11/sp_btn.png) no-repeat -260px -1190px;line-height:999px}
+.review table.wrt_board td .input_star .btn_score.on{background-position:-305px -1190px}
+
+
+.ly_inner table.wrt_board td .input_star .btn_score{overflow:hidden;position:relative;top:-1px;left:3px;width:42px;height:41px;background:url(https://ssl.pstatic.net/static/movie/2014/11/sp_btn.png) no-repeat -260px -1190px;line-height:999px}
+.ly_inner table.wrt_board td .input_star .btn_score.on{background-position:-305px -1190px}
+
+/* 태블릿 - 리뷰쓰기 별점 레이어 */
+.t_layer_score{width:360px;margin:5px 0 10px;border:1px solid #d4d4d4;background-color:#fcfcfc}
+.t_list_score{position:relative}
+.t_list_score li{width:50%;height:39px;border-bottom:1px solid #e8e8e8}
+.t_list_score li a{display:block;height:39px;-webkit-box-sizing:border-box;padding:8px 0 0 15px;text-align:left;text-decoration:none}
+.t_list_score .b_none{border-bottom:none}
+.t_list_score .col_right{position:absolute;top:0;right:0;z-index:60;border-left:1px solid #dadada}
+.t_list_score .col_right a{padding-left:14px}
+.t_list_score .col_right em{width:25px}
+.t_list_score .col_right+.col_right{top:40px}
+.t_list_score .col_right+.col_right+.col_right{top:80px}
+.t_list_score .col_right+.col_right+.col_right+.col_right{top:120px}
+.t_list_score .col_right+.col_right+.col_right+.col_right+.col_right{top:160px}
+.t_list_score .star,.t_list_score .star .on{background:url(https://ssl.pstatic.net/static/movie/2019/09/sp_ico.png) repeat-x 0 -900px}
+.t_list_score .star{display:inline-block;width:117px;height:20px;vertical-align:top}
+.t_list_score .star .on{display:inline-block;height:20px;background-position:0 -925px}
+.t_list_score li:first-child .star .on{width:100%}
+.t_list_score li+li .star .on{width:91.1%}
+.t_list_score li+li+li .star .on{width:80%}
+.t_list_score li+li+li+li .star .on{width:71%}
+.t_list_score li+li+li+li+li .star .on{width:60%}
+.t_list_score li+li+li+li+li+li .star .on{width:50%}
+.t_list_score li+li+li+li+li+li+li .star .on{width:40%}
+.t_list_score li+li+li+li+li+li+li+li .star .on{width:30%}
+.t_list_score li+li+li+li+li+li+li+li+li .star .on{width:20%}
+.t_list_score li+li+li+li+li+li+li+li+li+li .star .on{width:9%}
+.t_list_score em{display:inline-block;width:26px;font-family:tahoma,Helvetica,sans-serif;font-size:14px;color:#000;font-weight:bold;line-height:22px;text-align:right;vertical-align:top}
+.a .t_list_score em{top:0}
+.b_star .t_list_score .star .on{background-position:0 -950px}

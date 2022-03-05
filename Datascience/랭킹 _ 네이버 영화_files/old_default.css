@@ -1,0 +1,38 @@
+@charset "utf-8";
+/*
+NHN WebStandardization Team (http://html.nhndesign.com/)
+author : Jeong, Chan Myeong 070606~070606
+*/
+
+/* Default Type Selector */
+* { margin:0; padding:0;}
+div, p, table, tr, th, td, ul, ol, li, dl, dt, dd, a, h1, h2, h3, h4, h5, h6, form, input, select, textarea,fieldset, legend, img { font-style:normal; font-size:12px; font-family:"돋움", Dotum, "굴림", Gulim,Helvetica,AppleSDGothicNeo-Medium,AppleGothic, Sans-serif;}
+em {font-style:normal;}
+.text_area em {font-style: italic;}
+html, body { height:100%;}
+html { width:100%;}
+body { text-align:center;}
+a { text-decoration:none; color:#5a5a5a;}
+a:hover { text-decoration:underline;}
+img { border:none; vertical-align:middle;}
+label { cursor:pointer;}
+option { padding-right:5px;}
+li { list-style:none;}
+table {border-collapse:collapse; border-spacing:0;}
+fieldset {border:none;}
+legend {display:none;}
+input,
+select {vertical-align:middle;}
+
+/* IE6 PNG Hack */
+.iePngFix {_behavior:url(/common/js/iePngFix.htc);}
+#naver_common_editor table {border-collapse:separate;}
+
+/* 관련뉴스 */
+.link_news{width:573px !important;margin:40px 0 21px !important;overflow:hidden !important;font-family:Dotum,'돋움' !important,sans-serif;font-size:14px !important;line-height:27px !important}
+.link_news h3{margin:0 !important;padding:0 0 4px !important;color:#000 !important;font-size:14px !important;letter-spacing:-1px !important;line-height:27px !important}
+.link_news h3 span{display:inline-block !important;margin-left:11px !important;padding-left:10px !important;color:#999 !important;font-size:12px !important;font-weight:normal !important;background:url(https://ssl.pstatic.net/static.news/image/news/2012/11/sp_relation.gif) no-repeat 0 -61px !important}
+.link_news ul{margin:0 !important;padding-left:2px !important;line-height:27px !important}
+.link_news li{padding-left:12px !important;background:url(https://ssl.pstatic.net/static.news/image/news/2012/11/sp_relation.gif) no-repeat 0 10px !important}
+.link_news li a{display:inline-block !important;width:490px !important;overflow:hidden !important;color:#2f2f2f !important;font-size:14px !important;text-decoration:none !important;line-height:26px !important;text-overflow:ellipsis !important;white-space:nowrap !important;word-wrap:normal !important}
+.link_news li a:hover{text-decoration:underline !important}
