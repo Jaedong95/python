@@ -1,0 +1,9 @@
+0. sys 모듈을 이용한 정보 확인 
+- sys: 파이썬 인터프리터에 대한 다양한 정보를 제공하는 모듈 
+
+$ import sys 
+
+$ sys.prefix   # 파이썬 설치 경로 정보
+$ sys.executable   # 파이썬 실행 파일 정보
+$ sys.version   # 파이썬 버전 정보
+$ sys.path   # 파이썬 설치 경로 정보
