@@ -90,3 +90,13 @@ def partition(pivot, s):
     return left, right 
 
 ''' 버블 정렬 (Bubble Sort) '''
+def bubble_sort(int [] nums): 
+    tmp = 0 
+    for loop in range(len(nums)-1):
+        for idx in range(0, len(nums)-1): 
+            if nums[idx] > nums[idx + 1]:
+                tmp = nums[idx]
+                nums[idx] = nums[idx + 1] 
+                nums[idx + 1] = tmp
+        # print(f'loop {loop+1}: {nums}')  
+
