@@ -15,3 +15,5 @@ word_extractor.load(model_fname)   # 이전에 학습한 모델 로드
 scores = word_extractor.word_scores()   # 단어 점수표 생성 
 scores = {key: (scores[key].cohension_forward * \
     math.exp(scores[key].right_branching_entroyp)) for key in scores.keys()}
+
+# 형태소 분석이 완료된 결과는 /notebooks/embedding/data/tokenized에 저장됨 
