@@ -23,8 +23,10 @@ class WordEmbeddingTuner(Tuner):
         # 파인 튜닝 그래프 구축 
         self.ids_placeholder, self.input_lengths, self.labels_placeholder, \
         self.dropout_keep_prob, self.embedding_placeholder, self.embed_init, \
+        # make_word_embedding_graph 호출 시 tune=True로 설정하면 파인 튜닝 네트워크 학습용
         self.logits, self.loss = make_word_embedding_graph(num_labels, len(self.vocab) + 2, self.embedding_size, tune=True)
-
+    
+    # tune 함수 오버라이드 
     def tune(self):
         global_step = tf.train.get_or_create_global_step()
         optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
@@ -36,36 +38,3 @@ class WordEmbeddingTuner(Tuner):
         sess.run(tf.global_variables_initializer())
         sess.run(self.embed_init, feed_dict={self.embedding_placeholder: self.embeddings})
         self.train(sess, saver, global_step, output_feed)
-
-    def make_input(self, sentences, labels, is_training):
-        input_ids, lengths = [], []
-        max_token_length = self.get_max_token_length_this_batch(sentences)
-        for tokens in sentences:
-            token_ids = []
-            tokens_length = len(tokens)
-            for token in tokens:
-                if token in self.vocab:
-                    token_ids.append(self.vocab[token])
-                else:
-                    token_ids.append(self.unk_idx)
-            if len(tokens) < max_token_length:
-                token_ids.extend(
-                    [self.pad_idx] * (max_token_length - tokens_length))
-            input_ids.append(token_ids)
-            lengths.append(len(token_ids))
-        if is_training:
-            input_feed = {
-                self.ids_placeholder: np.array(input_ids),
-                self.input_lengths: np.array(lengths),
-                self.labels_placeholder: np.array(labels),
-                self.dropout_keep_prob: 0.9
-            }
-        else:
-            input_feed = {
-                self.ids_placeholder: np.array(input_ids),
-                self.input_lengths: np.array(lengths),
-                self.labels_placeholder: np.array(labels),
-                self.dropout_keep_prob: 1.0
-            }
-            input_feed = [input_feed, labels]
-        return input_feed

@@ -8,9 +8,9 @@ def train(self, sess, saver, global_step, output_feed):
     '''
     train_batches = self.get_batch(self.train_data, num_epochs=self.num_epochs, is_training=True)
     checkpoint_loss = 0.0
-    for current_input_feed in train_batches:
-        _, _, _, current_loss = sess.run(output_feed, current_input_feed)
-        checkpoint_loss += current_loss
+    for current_input_feed in train_batches:    # 학습셋의 배치 크기 단위로 
+        _, _, _, current_loss = sess.run(output_feed, current_input_feed)   # 모델 학습 
+        checkpoint_loss += current_loss   # 체크포인트 loss 계산 
         if global_step.eval(sess) % self.eval_every == 0:
             tf.logging.info("global step %d train loss %.4f" %
                             (global_step.eval(sess), checkpoint_loss / self.eval_every))

@@ -16,7 +16,7 @@ def load_embeddings(self, embedding_name, embedding_fname):
     읽어들이는 역할 수행 
     '''
     random_generator = self.get_truncated_normal()
-    if embedding_name in ["fasttext", "glove", "swivel"]:
+    if embedding_name in ["fasttext", "glove", "swivel"]:   # 학습된 단어 임베딩 행렬 읽어들임 
         embeddings, words = [], []
         with open(embedding_fname, 'r') as f:
             if embedding_name == "fasttext":

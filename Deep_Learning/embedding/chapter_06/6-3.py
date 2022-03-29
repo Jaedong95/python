@@ -9,17 +9,14 @@ Tuner 클래스 (3)  - 배치 함수
 -> 평가 때에도 배치 단위로 모델에 피드해 줘야 함 
 '''
 def get_batch(self, data, num_epochs, is_training=True):
-    '''
-    
-    '''
-    if is_training:
+    if is_training:   # 학습 중이면 
         data_size = self.train_data_size
-    else:
+    else:   # 학습 중이 아닌경우 
         data_size = self.test_data_size
     num_batches_per_epoch = int((data_size - 1) / self.batch_size)
     if is_training:
         tf.logging.info("num_batches_per_epoch : " + str(num_batches_per_epoch))
-    for epoch in range(num_epochs):
+    for epoch in range(num_epochs):   # 매 학습마다 
         idx = random.sample(range(data_size), data_size)
         data = np.array(data)[idx]
         for batch_num in range(num_batches_per_epoch):
