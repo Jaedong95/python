@@ -4,10 +4,11 @@ from gensim.corpora.wikicorpus import tokenize
 
 in_f = '/notebooks/embedding/data/raw/kowiki-latest-pages-articles.xml.bz2'
 out_f = '/notebooks/embedding/data/processed/processed_wiki_ko.txt' 
-output = open(out_f, 'w') 
+output = open(out_f, 'w')    # 파일 오픈 
 wiki = WikiCorpus(in_f, tokenizer_func=tokenize, dictionary=Dictionary())
 i = 0 
 
+# 원본 파일 전처리 
 for text in wiki.get_texts():
     output.write(bytes(' '.join(text), 'utf-8').decode('utf-8') + '\n')
     i = i + 1 
@@ -15,3 +16,4 @@ for text in wiki.get_texts():
         print('Processed ' + str(i) + ' articles') 
 output.close() 
 print('Processing complete !') 
+
