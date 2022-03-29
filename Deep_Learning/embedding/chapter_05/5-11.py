@@ -4,6 +4,7 @@ Doc2Vec 입력 클래스
 from preprocess import get_tokenizer
 from gensim.models.doc2vec import TaggedDocument
 
+# Doc2VecInput 클래스는 Doc2Vec 클래스가 요구하는 입력 형태를 맞춰줌
 class Doc2VecInput:
     def __init__(self, fname, tokenizer_name="mecab"):
         self.fname = fname
