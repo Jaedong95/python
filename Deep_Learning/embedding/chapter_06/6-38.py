@@ -5,3 +5,4 @@ pooled_output: 문장 시작을 알리는 첫 번째 토큰 [CLS]에 해당하�
                한 차례한 뒤 하이퍼볼릭탄젠트를 적용한 결과
 '''
 model.get_sentence_vector("이 영화 엄청 재미있네요") # ELMo의 문장 임베딩 추출
+

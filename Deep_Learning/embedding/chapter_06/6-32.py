@@ -18,3 +18,4 @@ def tune(self):
     tf.train.Saver(restore_vars).restore(sess, self.pretrain_model_fname)
     saver = tf.train.Saver(max_to_keep=1)
     self.train(sess, saver, global_step, output_feed)
+

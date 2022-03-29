@@ -1,5 +1,5 @@
 '''
-ELMo 임베딩 시각화 
+ELMo 임베딩 시각화 ㅎ
 '''
 sentences = ['이 영화 엄청 재미있네요', '이 영화 엄청 재미없네요', ...]
 model.visualize_sentences(sentences)
