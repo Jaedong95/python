@@ -29,3 +29,5 @@ def tokenize(content, token_min_len=2, token_max_len=100, lower=True):
         if len(token_candidate) > 0:
             result.append(token_candidate)
     return result
+    
+    

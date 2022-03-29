@@ -2,8 +2,7 @@ import json
 
 # corpus file 이름 지정 
 corpus_fname = '/notebooks/embedding/data/raw/KorQuAD_v1.0_train.json'
-# 출력 파일 이름 지정 
-output_fname = '/notebooks/embedding/data/processed/processed_korquad_train.txt'
+output_fname = '/notebooks/embedding/data/processed/processed_korquad_train.txt'  # 출력 파일 이름 지정 
 
 with open(corpus_fname) as f1, open(output_fname, 'w', encoding='utf-8') as f2:
     dataset_json = json.load(f1)   # corpus file 로드 
@@ -19,3 +18,5 @@ with open(corpus_fname) as f1, open(output_fname, 'w', encoding='utf-8') as f2:
                     w_lines.append(q_text + " " + a_text)
         for line in w_lines:
             f2.writelines(line + "\n")   # 파일 작성 
+            
+            
