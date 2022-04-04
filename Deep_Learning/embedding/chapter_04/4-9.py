@@ -2,7 +2,7 @@
 FastText Skip-gram 모델의 코사인 유사도 상위 단어 목록 체크 
 '''
 from models.word_eval import WordEmbeddingEvaluator 
-
+asdas
 model = WordEmbeddingEvaluator(
     vecs_txt_fname='/notebooks/embedding/data/word-embeddings/\
         fasttext/fasttext.vec',
