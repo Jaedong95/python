@@ -36,17 +36,22 @@ wordcloud = WordCloud(font_path=font_path, max_font_size=60)
 # 색상 옵션 
 plt. 
 
+# size 옵션 
+plt.rcParams['figure.figsize'] = [10, 8] 
+
+# title 옵션 
+plt.title(title)
+
 # 1. 막대 그래프 
-def plot_bar_vertical(x, y, title):   # x: list[], y: list[] 
+def plot_bar_vertical(x, y):   # x: list[], y: list[] 
   ''' 
   x축, y축에 들어갈 값을 입력으로 받아 수직 막대 그래프 출력
   ''' 
   plt.bar(x, y, tick_label=x)
-  plt.title(title)
   plt.xticks(x, x)
   plt.show()
   
-def plot_bar_horizon(x, y, title):   # x: list[], y: list[] 
+def plot_bar_horizon(x, y):   # x: list[], y: list[] 
   '''
   x축, y축에 들어갈 값을 입력으로 받아 수평 막대 그래프 출력 
   ''' 
@@ -56,6 +61,20 @@ def plot_bar_horizon(x, y, title):   # x: list[], y: list[]
 
   
 # 2. 선 그래프 
+def plot_line(x, y):  # x: list[int], y: list[int]
+  ''' 
+  x축, y축에 들어갈 값을 입력으로 받아 선 그래프 출력 
+  '''
+  plt.plot(x, y) 
+  plt.show() 
+
+def plot_mulit_line(x, y1, y2):  # x: list[], y1: list[int], y2: list[int]
+  '''
+  x축, y축에 들어갈 값을 입력으로 받아 여러개의 선 그래프 출력 
+  ''' 
+  plt.plot(x, y1)
+  plt.plot(x, y2)
+  plt.show() 
 
 
 # 3. 히트맵 
