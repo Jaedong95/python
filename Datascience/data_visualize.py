@@ -121,7 +121,7 @@ def plot_bar_horizon(x, y):   # x: list[], y: list[]
   plt.barh(x, y, tick_label=x)  
   plt.show()
 
-  
+
 # 2. 선 그래프 
 def plot_line(x, y):  # x: list[int], y: list[int]
   ''' 
