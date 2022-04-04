@@ -33,14 +33,40 @@ from wordcloud import WordCloud
 font_path = '/usr/share/fonts/truetype/nanum/NanumSquareR.ttf'
 wordcloud = WordCloud(font_path=font_path, max_font_size=60)
 
-# 색상 옵션 
+# 0. 여러 옵션들 
+1) 색상 옵션 
 plt. 
 
-# size 옵션 
+2) size 옵션 
 plt.rcParams['figure.figsize'] = [10, 8] 
 
-# title 옵션 
+3) title, label 옵션 
 plt.title(title)
+plt.xlabel('x label') 
+plt.ylabe('y label') 
+
+4) 축 옵션 
+# axis(): 보여줄 축의 범위 지정 
+plt.axis([0, 3, 2, 5])   # x축: 0~3, y축: 2~5까지 보여줌 
+
+5) subplots 
+# subplot: 여러 axes의 집합, figure: subplot을 모두 포함하는 오브젝트 
+# subplot(행의 수, 열의 수, 만들고자 하는 subplot의 Index) 
+plt.subplot(1, 2, 1) 
+plt.plot(x, y, color='green')
+plt.title(title) 
+
+plt.subplot(1, 2, 2) 
+plt.plot(x, y, coloer='steelblue')
+plt.title(title) 
+plt.show() 
+
+5-1) subplot adjust 
+# subplot_adjust(): subplot의 margin 조정. 
+# left, right, bottom, top, wspace: subplots의 수평 간격, hspace: subplots의 수직 간격 
+# ... 앞의 코드 생략 
+plt.subplots_adjust(bottom=0.2, hspace=0.25) ) 
+plt.show() 
 
 # 1. 막대 그래프 
 def plot_bar_vertical(x, y):   # x: list[], y: list[] 
@@ -71,10 +97,11 @@ def plot_line(x, y):  # x: list[int], y: list[int]
 def plot_mulit_line(x, y1, y2):  # x: list[], y1: list[int], y2: list[int]
   '''
   x축, y축에 들어갈 값을 입력으로 받아 여러개의 선 그래프 출력 
+  # linestyle: '--', ':', ' ' ...  
+  # marker: 'o', '*', 's' ... 
   ''' 
-  plt.plot(x, y1)
-  plt.plot(x, y2)
-  plt.show() 
+  plt.plot(x, y1, color='green')
+  plt.plot(x, y2, color='blue', linestyle=':', marker='o')     plt.show() 
 
 
 # 3. 히트맵 
