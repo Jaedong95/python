@@ -68,6 +68,42 @@ plt.show()
 plt.subplots_adjust(bottom=0.2, hspace=0.25) ) 
 plt.show() 
 
+6) Legends 옵션 
+# legend(): 그래프 모서리에 작은 모달을 달아 각 라벨이 무엇을 의미하는지 알려줌 
+# loc 0: best, 1: upper right, 2: upper left, 3: lower left, ... 10: center 
+
+6-1) legend() 함수 이용 
+plt.legend(['parabola', 'cubic'], loc= 0)    
+plt.show() 
+
+6-2) label 옵션 이용 
+plt.plot(x, y, label='parabola')
+plt.plot(x, y, label='cubic') 
+plt.legend()   # 꼭 호출해주어야 함 
+plt.show() 
+
+7) tick 옵션 
+# figure는 여러 subplot을 보유하기 때문에, tick을 수정할 subplot 명시 
+# ax: axes 오브젝트
+ax = plt.subplot(1, 1, 1)  # 수정할 subplot 명시 
+
+ax = plt.subplot()
+ax.set_xticks([1, 2, 4])  # x축에 보여지는 값 수정 
+
+plt.plot(x, y, 'o')   # 'o': scatter 그래프 
+ax.set_yticks([0.1, 0.6, 0.8])   # y축에 보여지는 값 수정 
+ax.set_yticklabels(['10%', '60%', '80%'])   # y축 라벨 지정 
+
+
+8) figure 옵션 
+# figure(): 새로운 figure 생성 
+plt.figure(figsize=(4, 10))   # 가로, 세로 길이 지정 
+plt.savefig('cori.png')   # png 파일로 저장 
+
+
+9) close 옵션 
+plt.close('all')   # 기존에 존재하는 모든 그래프 삭제 
+
 # 1. 막대 그래프 
 def plot_bar_vertical(x, y):   # x: list[], y: list[] 
   ''' 
@@ -101,7 +137,8 @@ def plot_mulit_line(x, y1, y2):  # x: list[], y1: list[int], y2: list[int]
   # marker: 'o', '*', 's' ... 
   ''' 
   plt.plot(x, y1, color='green')
-  plt.plot(x, y2, color='blue', linestyle=':', marker='o')     plt.show() 
+  plt.plot(x, y2, color='blue', linestyle=':', marker='o')  
+  plt.show() 
 
 
 # 3. 히트맵 
