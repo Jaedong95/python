@@ -85,6 +85,7 @@ plt.show()
 7) tick 옵션 
 # figure는 여러 subplot을 보유하기 때문에, tick을 수정할 subplot 명시 
 # ax: axes 오브젝트
+1) subplot 이용 
 ax = plt.subplot(1, 1, 1)  # 수정할 subplot 명시 
 
 ax = plt.subplot()
@@ -94,6 +95,14 @@ plt.plot(x, y, 'o')   # 'o': scatter 그래프
 ax.set_yticks([0.1, 0.6, 0.8])   # y축에 보여지는 값 수정 
 ax.set_yticklabels(['10%', '60%', '80%'])   # y축 라벨 지정 
 
+2) subplot 이용 x 
+xs = df['x'].to_list()
+xlabels = df['x'].apply(lambda x: x[4:]).to_list()   # YYYYMMDD의 경우 MMDD만 label로 표시
+plt.plot(xs, y)
+plt.xticks(xs, xlabels, rotation=45)
+plt.xlabel('2020 Daily Trend') 
+# parameter nbins: 출력할 개수 지정 
+plt.locator_params(axis='x', nbins=len(xlabels) / 2)   
 
 8) figure 옵션 
 # figure(): 새로운 figure 생성 
