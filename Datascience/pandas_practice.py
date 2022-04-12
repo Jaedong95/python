@@ -4,7 +4,7 @@
 # 0. 데이터 읽어오기 
 import pandas as pd 
 
-pd.read_csv('~.csv', a
+pd.read_csv('~.csv', 
 
 # 1. 데이터 저장하기 
 df.to_csv('~.csv', index=None) 
