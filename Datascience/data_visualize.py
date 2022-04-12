@@ -4,7 +4,7 @@ colab에 Nanum 폰트 설치
 !sudo apt-get install -y fonts-nanum 
 !fc-cache -fv 
 !rm ~/.cache/matplotlib -rf 
-
+sa
 # 이후 런타임 재시작, 해당 셸 스킵 후 코드 실행 
 
 '''
