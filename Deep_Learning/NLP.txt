@@ -1,0 +1,191 @@
+''' BoW '''
+# BoW란 ? 단어들의 순서는 전혀 고려하지 않고 단어들의 출현 빈도에만 집중하는 
+#         텍스트 데이터의 수치화 표현 방법 
+from konlpy.tag import Okt
+
+okt = Okt()
+
+def build_bag_of_words(document):
+  '''
+  document를 입력으로 받아 (단어-인덱스 매핑값, bow) 생성해서 반환하는 함수 
+  '''
+  document = document.replace('.', '')   # 온점 제거 
+  tokenzied_document = okt.morphs(document)   # 형태소 분석 
+  
+  word_to_index = {}   # dictionary
+  bow = []   # list 
+  
+  for word in tokenized_document:
+    if word not in word_to_index.keys():
+      word_to_index[word] = len(word_to_index)
+      # bow에 전부 기본값 1을 넣음 
+      bow.insert(len(word_to_index) - 1, 1) 
+    else:
+      index = word_to_index.get(word)  # 재등장하는 단어의 인덱스
+      # 재등장한 단어는 해당하는 인덱스의 위치에 1을 더함 
+      bow[index] = bow[index] + 1 
+  return word_to_index, bow 
+
+# bow examples(1)  - python
+doc = "정부가 발표하는 물가상승률과 소비자가 느끼는 물가상승률은 다르다."
+vocab, bow = build_bag_of_words(doc)
+print('vocabulary: ', vocab)
+print('bag of words vector: ', bow)
+
+# bow examples(2)  - scikit-learn 
+from sklearn.feature_extraction.text import CountVectorizer
+
+corpus = ['you know I want your love. because I love you.']
+## CountVectorizer(): 단어의 빈도를 Count하여 Vector로 생성함 
+vector = CountVectorizer()   
+
+print('vocabulary :',vector.vocabulary_)   # 각 단어의 인덱스가 어떻게 부여되었는지를 출력
+# 코퍼스로부터 각 단어의 빈도수를 기록
+print('bag of words vector :', vector.fit_transform(corpus).toarray()) 
+
+
+''' TF-IDF ''' 
+# 문서: d, 단어: t, 문서의 총 개수: n 
+# df(t): 특정 단어 t가 등장한 문서 수 
+
+def tf(t, d):
+  ''' 
+  특정 문서 d에서의 특정 단어 t의 등장 횟수 반환 
+  '''
+  return d.count(t)
+ 
+def idf(t):
+  '''
+  df(t)의 역수 값(log를 취해 가중치 비중 감소)을 반환
+  idf 함수는 여러 문서에서 등장한 단어의 가중치를 낮추는 역할 수행  
+  
+  전체 문서의 수 N = 3, df = 2인 경우, log(N/(df+1)) = 0이 되어 
+  가중치의 역할을 수행하지 못하기 때문에, 실무에서는 이 수식을 조정해서 사용함
+  '''
+  df = 0
+  for doc in docs:
+    df += t in doc
+  return log(N/(df+1))
+  
+def tfidf(t, d):
+  '''
+  tf x idf를 계산한 값 
+  특정 문서에 등장하는 빈도수가 높고, 다른 문서에 등장하는 빈도수가 낮을수록 값이 커짐 
+  '''
+  return tf(t,d)* idf(t)
+  
+
+# tf-idf examples (1) - python
+import pandas as pd 
+from math import log 
+
+docs = [
+  '먹고 싶은 사과',
+  '먹고 싶은 바나나',
+  '길고 노란 바나나 바나나',
+  '저는 과일이 좋아요'
+]
+
+## 문서(문자열)에 등장하는 단어(공백으로 구분된)들에 대해 중복을 제거하여 집합으로 생성 (단어집)
+vocab = list(set(w for doc in docs for w in doc.split()))
+vocab.sort() 
+
+n = len(docs)   # 총 문서의 수 
+
+## tf 구현 
+result = [] 
+
+for i in range(n):   # 각 문서에 대해 
+  result.append([]) 
+  d = docs[i]  # 문서 지정 
+  for j in range(len(vocab)):  # 단어집의 개수만큼 반복
+    t = vocab[j]  # 단어 지정
+    result[-1].append(tf(t, d))   # tf 값 계산하여 배열의 마지막에 추가 
+    
+tf_dataFrame = pd.DataFrame(result, columns = vocab)  # DTM
+ 
+## idf 구현 
+result = []
+ 
+for j in range(len(vocab)): 
+  t = vocab[j] 
+  result.append(idf(t)) 
+   
+if_dataFrame = pd.DataFrame(result, index=vocab, columns=["IDF"])
+  
+## TF-IDF 행렬 구현 
+result = [] 
+for i in range(n):   # 모든 문서에 대해
+  result.append([])
+  d = docs[i]
+  for j in range(len(vocab)):
+    t = vocab[j]
+    result[-1].append(tfidf(t, d))
+    
+tfidf_dataFrame = pd.DataFrame(result, columns=vocab)
+
+# tf-idf examples (2)  - scikit-learn
+from sklearn.feature_extraction.text import CountVectorizer 
+from sklearn.feature_extraction.text import TfidfVectorizer 
+
+corpus = [
+  'you know I want your love', 
+  'I like you',
+  'what should I do'
+]
+
+vector = CountVectorizer()
+
+# 코퍼스로부터 각 단어의 빈도 수 기록  - DTM 생성 
+print(vector.fit_transform(corpus).toarray())
+
+# 각 단어와 매핑된 인덱스 출력 
+print(vector.vocabulary_) 
+
+## scikit-learn의 tfidfVectorizer는 IDF의 분자항에 1을 더해주고, 로그항에 1을 더해주고
+## TF-IDF에 L2 regularization 적용하여 tf-idf 값을 계산함 
+tfidf_v = TfidfVectorizer().fit(corpus)
+
+print(tfidf_v.transform(corpus).toarray())
+print(tfidf_v.vocabulary_)
+
+
+''' 유사도 계산 ''' 
+# 01. 코사인 유사도
+from numpy import dot 
+from numpy.linalg import norm  
+import numpy as np
+
+def cos_sim(A, B):
+  '''
+  numpy를 이용해 A, B 문서 간 코사인 유사도 계산하는 함수 
+  '''
+  return dot(A, B) / (norm(A) * norm(B))
+
+doc1 = np.array([0, 1, 1, 1])
+doc2 = np.array([1, 0, 1, 1])
+doc3 = np.array([2, 0, 2, 2]) 
+
+print('문서 1과 문서2의 유사도 :', cos_sim(doc1, doc2))
+print('문서 1과 문서3의 유사도 :', cos_sim(doc1, doc3))
+print('문서 2와 문서3의 유사도 :', cos_sim(doc2, doc3))
+
+# 02. 유클리드 거리
+import numpy as np
+
+def dist(A, B):
+  '''
+  numpy를 이용해 A, B 문서 간 유클리드 거리를 계산하는 함수 
+  '''
+  return np.sqrt(np.sum((A-B) ** 2))
+  
+doc1 = np.array((2, 3, 0, 1)) 
+doc2 = np.array((1, 2, 3, 1))
+doc3 = np.array((2, 1, 2, 2)) 
+doc4 = np.array((1, 1, 0, 1)) 
+
+print('문서 1과 문서4의 거리 :', dist(doc1, doc2))
+print('문서 2와 문서4의 거리 :', dist(doc1, doc3))
+print('문서 3과 문서4의 거리 :', dist(doc2, doc3))
+
+# 03. 
