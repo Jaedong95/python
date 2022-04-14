@@ -188,4 +188,42 @@ print('문서 1과 문서4의 거리 :', dist(doc1, doc2))
 print('문서 2와 문서4의 거리 :', dist(doc1, doc3))
 print('문서 3과 문서4의 거리 :', dist(doc2, doc3))
 
-# 03. 
+# 03. 자카드 유사도
+doc1 = "apple banana everyone like likely watch card holder"
+doc2 = "apple banana coupon passport love you"
+
+## 토큰화
+tokenized_doc1 = doc1.split()
+tokenized_doc2 = doc2.split()
+
+print('문서 1: ', tokenized_doc1)
+print('문서 2: ', tokenized_doc2)
+
+union_AB = set(tokenized_doc1).union(set(tokenzied_doc2))
+print('문서1과 문서2의 합집합: ', union_AB)
+
+intersect_AB = set(tokenized_doc1).intersection(set(tokenized_doc2))
+print('문서1과 문서2의 교집합: ', intersect_AB)
+
+print('자카드 유사도: ', len(intersect_AB)/len(union_AB))
+
+
+# 04. 레벤슈타인 거리 
+## 레벤슈타인 거리란 ? 두 개의 문장을 2차원 배열로 나타내어 각 문장의 문장들을 
+##				비교하며 몇 개의 글자가 다른지 구분하는 방법 
+def leven(A, B):
+  '''
+  두 문장 A, B를 입력으로 받아 서로 몇 개의 단어가 다른지 반환하는 함수 
+  1. [문장길이 + 1][문장길이 + 1] 만큼의 2차원 배열을 생성
+  2. [0][n], [n][0]을 모두 문장 길이만큼 초기화
+  3. 문장 A의 첫 단어와 문장 B의 첫 단어가 같으면 cost를 0으로 주고, [i][j] = [i-1][j-1] + cost
+  4. 문장 A의 첫 단어와 문장 B의 두번째 단어가 다르면 두 번째 단어를 제거, [i][j] = [i-1][j] + 1 
+  5. 문장 A의 두번째 단어와 문장 B의 첫 단어가 다르면 
+  '''
+  len_A = len(A) + 1 
+  len_B = len(B) + 1 
+  array = [[] for _ in range(len_A)]
+  for i in range(len_A):
+    array[i] = [0 for a in range(len_B)]
+  
+
