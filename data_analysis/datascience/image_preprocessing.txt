@@ -12,6 +12,23 @@ for i in file_list_input:
     os.rename('기존 이미지 경로/{0}'.format(i), '기존 이미지 경로/' + new_name + '{0}.jpg'.format(idx))
 
 
+''' 이미지 크기 변경 (용량 줄이기) '''
+import glob 
+from PIL import Image 
+
+image_dir = './'
+image_name = '~.jpg'
+image_width = 120
+image_height = 160
+
+files = glob.glob(image_dir + image_name)
+for i, f in enumerate(files):
+    img = Image.open(f)
+    img = img.resize((image_width, image_height))
+
+img2 = img.save('~.jpg')
+
+
 ''' Image Crop ''' 
 # 다각형 모양으로 crop하기 
 import numpy as np
