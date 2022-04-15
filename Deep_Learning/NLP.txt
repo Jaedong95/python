@@ -153,8 +153,40 @@ for sentence in preprocessed_sentences:   # 전처리 완료된 문장들에 대
         except KeyError:
             encoded_sentence.append(word_to_index['OOV'])   # 만약 단어 집합에 없는 단어라면 'OOV'의 정수를 리턴
     encoded_sentences.append(encoded_sentence)
-print(encoded_sentences)
-		   
+print(encoded_sentences)   # 정수 인코딩이 완료됨. [[1, 5], [1, 6, 5], ... ]] 
+
+
+### 7-2) Counter를 이용한 정수 인코딩
+from collections import Counter
+
+all_words_list = sum(preprocessed_sentences, [])   # 단어 집합을 생성하기 위해 문장 경계를 제거하고 단어들을 하나의 리스트로 생성 
+vocab = Counter(all_words_list)   # 중복을 제거하고, 단어의 빈도수를 기록
+
+vocab_size = 5
+vocab = vocab.most_common(vocab_size)   # 등장 빈도수가 높은 상위 5개의 단어만 저장
+
+word_to_index = {}
+i = 0
+for (word, frequency) in vocab :   # 높은 빈도수를 가진 단어일수록 낮은 정수 인덱스 부여
+    i = i + 1
+    word_to_index[word] = i
+
+
+### 7-3) keras의 텍스트 전처리
+from tensorflow.keras.preprocessing.text import Tokenizer
+
+vocab_size = 5
+
+tokenizer = Tokenizer(num_words = vocab_size + 2, oov_token = 'OOV')   # 상위 5개 단어만 사용하며, 제거된 단어는 oov 토큰으로 대체
+tokenizer.fit_on_texts(preprocessed_sentences)    # 빈도수를 기준으로 단어 집합 생성 (정수 인코딩)
+
+print('단어 OOV의 인덱스 : {}'.format(tokenizer.word_index['OOV']))
+print(tokenizer.word_index)   # 5개 이상의 단어가 출력됨  -> 이후 text_to_sequences를 사용할 때 반영되기 때문
+print(tokenizer.word_counts)   # 각 단어가 카운트를 수행했을 때 몇 개였는지 확인
+print(tokenizer.texts_to_sequences(preprocessed_sentences))
+
+
+
 
 # 2. 한글 
 ## 1) 단어 토큰화  
