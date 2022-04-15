@@ -86,26 +86,57 @@ print('불용어 제거 전 :',word_tokens)
 print('불용어 제거 후 :',result)
 
 
+## 7) 정수 인코딩 
+### 컴퓨터는 텍스트보다 숫자를 더 잘 처리할 수 있기 때문에, 각 단어를 고유한 정수에 매핑하는 전처리 작업이 필요
+### 7-1) Dictionary 자료형을 이용한 정수 인코딩
+from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+raw_text = """A barber is a person. a barber is good person. a barber is huge person. he Knew A Secret!
+		   The Secret He Kept is huge secret. Huge secret. His barber kept his word. a barber kept his word.
+		   His barber kept his secret. But keeping and keeping such a huge secret to himself was driving the 
+		   barber crazy. the barber went up a huge mountain."""
+		   
+		   
+		   
 
 # 2. 한글 
-## 1) 한글 토큰화  - 단어 
+## 1) 단어 토큰화  
 from konlpy.tag import Okt
 from konlpy.tag import Kkma
 
 okt = Okt()   # 트위터 형태소 분석기 
 kkma = Kkma()   # 꼬꼬마 형태소 분석기 
 
-print('OKT 형태소 분석 :',okt.morphs("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
-print('OKT 품사 태깅 :',okt.pos("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
-print('OKT 명사 추출 :',okt.nouns("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
+print('OKT 형태소 분석 :', okt.morphs("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
+print('OKT 품사 태깅 :', okt.pos("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
+print('OKT 명사 추출 :', okt.nouns("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
 
-## 2) 한글 토큰화  - 문장 
+## 2) 문장 토큰화  
 !pip install kss
 
 import kss
 
 text = '딥 러닝 자연어 처리가 재미있기는 합니다. 그런데 문제는 영어보다 한국어로 할 때 너무 어렵습니다. 이제 해보면 알걸요?'
 print('한국어 문장 토큰화 :',kss.split_sentences(text))
+
+
+## 3) 불용어 - 한국어의 경우 사용자가 직접 불용어 사전을 만드는 경우가 많음 
+from konlpy.tag import Okt
+
+okt = Okt()
+
+example = "고기를 아무렇게나 구우려고 하면 안 돼. 고기라고 다 같은 게 아니거든. 예컨대 삼겹살을 구울 때는 중요한 게 있지."
+stop_words = "를 아무렇게나 구 우려 고 안 돼 같은 게 구울 때 는"
+
+stop_words = set(stop_words.split(' '))
+word_tokens = okt.morphs(example)
+
+result = [word for word in word_tokens if not word in stop_words]
+
+print('불용어 제거 전 :',word_tokens) 
+print('불용어 제거 후 :',result)
 
 
 
