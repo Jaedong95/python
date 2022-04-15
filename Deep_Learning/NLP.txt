@@ -134,8 +134,26 @@ for (word, frequency) in vocab_sorted :   # 높은 빈도를 가진 단어일수
 
 print(word_to_index)
 
+vocab_size = 5   # 빈도수가 가장 높은 5개의 단어만 출력하도록 설정 
+words_frequency = [word for word, index in word_to_index.items() if index >= vocab_size + 1]
 
+for w in words_frequency:
+    del word_to_index[w]   # 해당 단어에 대한 인덱스 정보를 삭제
+print(word_to_index)   # 빈도수가 가장 높은 상위 5개 단어만 저장됨
 
+word_to_index['OOV'] = len(word_to_index) + 1   # 인덱스 값이 5 이상인 단어들을 정수로 바꿀 때 'OOV' 값에 매핑
+print(word_to_index)   # {'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5, 'OOV': 6}
+
+encoded_sentences = []
+for sentence in preprocessed_sentences:   # 전처리 완료된 문장들에 대해 
+    encoded_sentence = []
+    for word in sentence:   
+        try:
+            encoded_sentence.append(word_to_index[word])  # 단어 집합에 있는 단어라면 해당 단어의 정수를 리턴
+        except KeyError:
+            encoded_sentence.append(word_to_index['OOV'])   # 만약 단어 집합에 없는 단어라면 'OOV'의 정수를 리턴
+    encoded_sentences.append(encoded_sentence)
+print(encoded_sentences)
 		   
 
 # 2. 한글 
