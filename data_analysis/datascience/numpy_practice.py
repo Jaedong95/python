@@ -53,6 +53,8 @@ print(f'random.randint(start, end, s): \n{np.random.randint(1, 10, (3, 3))}')
 print(f'random.randn(s): \n{np.random.randn(5, 5)}')
 print(f'random.normal(M, SD, s): \n{np.random.normal(10, 1, (4, 4))}')
 print(f'random.choice(range(a), n): {np.random.choice([1, 2, 3, 4, 5], 3)}')
+# n * 4 형태의 2차원 매트릭스를 생성하고 해당 매트릭스에 0~100 사이의 값 저장
+print(f'random.fill_matrix: {np.random.randint(0, 101, (n, 4))    
 
 a = np.arange(1, 10)
 np.random.shuffle(a)

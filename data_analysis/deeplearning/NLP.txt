@@ -18,6 +18,7 @@ tokenizer = TreebankWordTokenizer()
 text = "Starting a home-based restaurant may be an ideal. it doesn't have a food chain or restaurant of their own."
 print('트리뱅크 워드토크나이저 :',tokenizer.tokenize(text))
 
+
 ## 2) 문장 토큰화 
 from nltk.tokenize import sent_tokenize
 
@@ -188,8 +189,6 @@ print(tokenizer.word_counts)   # 각 단어가 카운트를 수행했을 때 몇
 print(tokenizer.texts_to_sequences(preprocessed_sentences))
 
 
-
-
 # 2. 한글 
 ## 1) 단어 토큰화  
 from konlpy.tag import Okt
@@ -226,6 +225,74 @@ result = [word for word in word_tokens if not word in stop_words]
 
 print('불용어 제거 전 :',word_tokens) 
 print('불용어 제거 후 :',result)
+
+
+## 4) PyKoSpacing  - 띄어쓰기가 되어 있지 않은 문장을 띄어쓰기 한 문장으로 변환해주는 패키지 
+!pip install git+https://github.com/haven-jeon/PyKoSpacing.git
+from pykospacing import Spacing
+
+sent = '김철수는 극중 두 인격의 사나이 이광수 역을 맡았다. 철수는 한국 유일의 태권도 전승자를 가리는 결전의 날을 앞두고 10년간 함께 훈련한 사형인 유연재(김광수 분)를 찾으러 속세로 내려온 인물이다.'
+new_sent = sent.replace(" ", "")   # 띄어쓰기가 없는 문장을 임의로 생성 
+
+spacing = Spacing()
+kospacing_sent = spacing(new_sent)
+
+print(sent)
+print(kospacing_sent)
+
+## 5) Py-Hanspell  - 맞춤법 검사 및 수정
+!pip install git+https://github.com/ssut/py-hanspell.git
+from hanspell import spell_checker
+
+sent = "맞춤법 틀리면 외 않되 ? 쓰고싶은대로쓰면돼지"
+spelled_sent = spell_checker.check(sent)
+
+hanspell_sent = spelled_sent.checked
+print(hanspell_sent)
+
+## 6) soynlp  
+!pip install soynlp 
+
+### 6-1) 학습하기  - soynlp는 학습에 기반한 토크나이저이므로 학습에 필요한 한국어 문서 다운로드 
+import urllib.request
+from soynlp import DoublespaceLineCorpus
+from soynlp.word import WordExtractor 
+
+urllib.request.urlretrieve("https://raw.githubusercontent.com/lovit/soynlp/master/tutorials/2016-10-20.txt", filename="2016-10-20.txt")
+
+corpus = DoublespaceLineCorpus("2016-10-20.txt") # 훈련 데이터를 다수의 문서로 분리 
+len(corpus)   # 30091개의 문서
+
+word_extractor = WordExtractor()
+word_extracotr.train(corpus)   # 문서 학습 
+word_score_table = word_extractor.extract()   # 전체 코퍼스에 대한 단어 점수 계산 
+
+### 6-2) 단어 응집 확률 계산 - 응집 확률: 내부 문자열이 얼마나 응집하여 자주 등장하는지를 판단하는 척도
+
+word_score_table['반포한'].cohesion_forward   # 단어 '반포한'의 응집 확률 계산 
+word_score_table['반포한강].cohesion_forward   # 단어 '반포한강'의 응집 확률이 '반포한'보다 더 높음
+word_score_table['반포한강공원'].cohesion_forward   #단어 '반포한강공원'의 응집 확률이 더 높음
+word_score_table['반포한강공원에'].cohesion_forward   # 단어 '반포한강공원에'의 응집 확률이 더 낮음
+
+### 6-3) 브랜칭 엔트로피 계산  - 주어진 문자 시퀀스에서 다음 문자 예측을 위해 헷갈리는 정도  
+word_score_table['디스'].right_branching_entropy   # 1.63 
+word_score_table['디스플'].right_branching_entropy   # 0.0   # 다음에 레가 올 것이 확실하기 때문에 감소
+
+### 6-4) L tokenizer  - 한국어의 경우 띄어쓰기로 나눈 어절 토큰은 주로 L 토큰 + R 토큰의 형식을 가짐 
+### L 토크나이저의 경우 L 토큰 + R 토큰으로 나누되, 분리 기준을 점수가 가장 높은 L 토큰을 찾아냄 
+from soynlp.tokenizer import LTokenizer 
+
+scores = {word:score.cohesion_forward for word, score in word_score_table.items()}
+l_tokenizer = LTokenizer(scores=scores)
+l_tokenizer.tokenize('국제 사회와 우리의 노력들로 범죄를 척결하자', flatten=False) 
+
+### 6-4) 최대 점수 토크나이저  - 띄어쓰기가 되지 않는 문장에서 점수가 높은 글자 시퀀스를 순차적으로
+### 찾아내는 토크나이저 
+from soynlp.tokenize import MaxScoreTokenizer 
+
+maxscore_tokenizer = MaxScoreTokenizer(scores=scores)
+maxscore_tokenizer.tokenize('국제사회와우리의노력들로범죄를척결하자.)
+
 
 
 
