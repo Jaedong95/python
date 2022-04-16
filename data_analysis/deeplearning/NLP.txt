@@ -293,8 +293,21 @@ from soynlp.tokenize import MaxScoreTokenizer
 maxscore_tokenizer = MaxScoreTokenizer(scores=scores)
 maxscore_tokenizer.tokenize('국제사회와우리의노력들로범죄를척결하자.)
 
+### 6-5) 반복되는 문자 정제  
+from soynlp.normalizer import * 
 
+print(emoticon_normalize('앜ㅋㅋㅋㅋㅋ이영화존잼쓰ㅜㅠㅜㅜㅠㅠ', num_repeats=2))
 
+## 7) customized KoNLPy 
+### 형태소 분석기를 사용해 단어 토큰화를 수행할 때, 이름과 같은 고유명사들이 분리되지 않도록 설정
+!pip install customized_konlpy
+from ckonlpy.tag import Twitter 
+
+twitter = Twitter()
+twitter.morphs('은경이는 사무실로 갔습니다.')   # ['은', '경이', '는', '사무실', '로', '갔습니다', '.']
+
+twitter.add_dictionary('은경이', 'Noun')   # 형태소분석기.add_dictionary('단어', '품사')로 사전 추가
+twitter.morphs('은경이는 사무실로 갔습니다.)   # ['은경이', '는', '사무실', '로', 갔습니다', '.']
 
 ''' BoW '''
 # BoW란 ? 단어들의 순서는 전혀 고려하지 않고 단어들의 출현 빈도에만 집중하는 
