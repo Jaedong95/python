@@ -297,6 +297,7 @@ maxscore_tokenizer.tokenize('국제사회와우리의노력들로범죄를척결
 from soynlp.normalizer import * 
 
 print(emoticon_normalize('앜ㅋㅋㅋㅋㅋ이영화존잼쓰ㅜㅠㅜㅜㅠㅠ', num_repeats=2))
+print(repeat_normalize('와하하하하하하하하하핫', num_repeats=2))
 
 ## 7) customized KoNLPy 
 ### 형태소 분석기를 사용해 단어 토큰화를 수행할 때, 이름과 같은 고유명사들이 분리되지 않도록 설정
@@ -358,6 +359,7 @@ print('bag of words vector :', vector.fit_transform(corpus).toarray())
 ''' TF-IDF ''' 
 # 문서: d, 단어: t, 문서의 총 개수: n 
 # df(t): 특정 단어 t가 등장한 문서 수 
+from math import log
 
 def tf(t, d):
   ''' 
