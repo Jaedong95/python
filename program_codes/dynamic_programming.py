@@ -14,7 +14,7 @@ def fibo(n):
     for _ in range(2, n + 1):
         bunny, rabby = rabby, bunny + rabby 
     return bunny + rabby
-
+sadasd
 # 재귀 
 def fibseq(n):
     fibs = [0, 1]
