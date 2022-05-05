@@ -62,8 +62,8 @@ df.columns = col_name
 df = df.drop('col1', axis=1) 
 
 # n. 데이터프레임 병합 
-df3 = pd.merge(df1, df2m on='col1')   # 공통되는 컬럼(col1) 지정 
+df3 = pd.merge(df1, df2, on='col1')   # 공통되는 컬럼(col1) 지정 
 
-
+ 
 # n. 중복 데이터 처리 
 df = df.drop_duplicates(['col1']) 
