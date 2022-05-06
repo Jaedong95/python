@@ -5,7 +5,7 @@ numbers = [
     7, 2, 3
 ]
 counter = {}
-asdasdafs
+asdasda
 # A1. if문 사용 
 ''' 의사코드
 for number in numbers:
