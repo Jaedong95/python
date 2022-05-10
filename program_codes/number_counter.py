@@ -14,7 +14,7 @@ for number in numbers:
     아니라면:
         counter 사전에 number를 키, 값을 1로 하는 요소 추가 
 '''sad
-
+asdasd
 for number in numbers:
     if number in counter:
         counter[number] += 1 
