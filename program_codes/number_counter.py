@@ -8,7 +8,7 @@ counter = {}
 asdasda
 # A1. if문 사용 
 ''' 의사코드
-for number in numbers:
+for number in numbers:sadsad
     만약 number가 counter 사전의 키라면:
         해당 키의 값을 1 증가
     아니라면:
