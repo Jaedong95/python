@@ -13,7 +13,7 @@ for number in numbers:sadsad
         해당 키의 값을 1 증가
     아니라면:
         counter 사전에 number를 키, 값을 1로 하는 요소 추가 
-'''sad
+'''sa
 asdasd
 for number in numbers:
     if number in counter:
